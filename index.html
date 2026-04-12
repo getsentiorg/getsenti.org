@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getsenti — AI That Feels You</title>
+<title>Senti — AI That Feels You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
@@ -619,11 +619,13 @@
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
+<!-- NAV -->
 <nav id="navbar">
-  <div class="logo">getsen<span>ti</span></div>
+  <div class="logo">sen<span>ti</span></div>
   <button class="nav-cta" onclick="scrollToWaitlist()">Join Waitlist</button>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
@@ -640,7 +642,7 @@
   </h1>
 
   <p class="hero-sub">
-    Getsenti is the emotional context layer for AI. We connect your real-time biological state to any AI system — so it responds to how you actually feel, not just what you type.
+    Senti is the emotional context layer for AI. We connect your real-time biological state to any AI system — so it responds to how you actually feel, not just what you type.
   </p>
 
   <div class="waitlist-form" id="waitlistHero">
@@ -662,6 +664,7 @@
 
 <div class="full-divider"></div>
 
+<!-- PROBLEM -->
 <div class="problem-section">
   <span class="section-label reveal">The Problem</span>
   <h2 class="section-title reveal">AI is smart.<br>But it's emotionally blind.</h2>
@@ -688,15 +691,16 @@
 
 <div class="full-divider"></div>
 
+<!-- HOW IT WORKS -->
 <div class="how-section">
-  <span class="section-label reveal">How Getsenti Works</span>
+  <span class="section-label reveal">How Senti Works</span>
   <h2 class="section-title reveal">Three steps.<br>One emotional layer.</h2>
 
   <div class="steps">
     <div class="step reveal">
       <div class="step-number">01</div>
       <h3>Read</h3>
-      <p>Getsenti reads your biometric signals — heart rate variability, skin conductance, and more — from any compatible wearable in real time.</p>
+      <p>Senti reads your biometric signals — heart rate variability, skin conductance, and more — from any compatible wearable in real time.</p>
       <span class="step-tag">Wearable Agnostic</span>
     </div>
     <div class="step reveal">
@@ -716,12 +720,13 @@
 
 <div class="full-divider"></div>
 
+<!-- VISION -->
 <div class="vision-section">
   <div class="vision-grid">
     <div>
       <span class="section-label reveal">The Opportunity</span>
       <h2 class="section-title reveal">The missing layer between humans and machines.</h2>
-      <p class="section-body reveal">Every major platform — healthcare, productivity, education, mental wellness — needs emotionally aware AI. Getsenti is the infrastructure that makes it possible.</p>
+      <p class="section-body reveal">Every major platform — healthcare, productivity, education, mental wellness — needs emotionally aware AI. Senti is the infrastructure that makes it possible.</p>
 
       <div class="vision-stats reveal">
         <div class="stat">
@@ -756,9 +761,10 @@
 
 <div class="full-divider"></div>
 
+<!-- BOTTOM CTA -->
 <div class="cta-section" id="waitlist">
   <h2 class="reveal">Be first.<br>Shape what's next.</h2>
-  <p class="reveal">Join the waitlist and get early API access, founder pricing, and a direct line to the team building Getsenti.</p>
+  <p class="reveal">Join the waitlist and get early API access, founder pricing, and a direct line to the team building Senti.</p>
 
   <div class="waitlist-form reveal" id="waitlistBottom">
     <input class="waitlist-input" type="email" placeholder="Enter your email" id="emailBottom">
@@ -768,15 +774,16 @@
   <p class="hero-note reveal" style="margin-top: 16px;">We'll never spam you. Unsubscribe anytime.</p>
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <div class="logo">getsen<span>ti</span></div>
+  <div class="logo">sen<span>ti</span></div>
   <div class="footer-links">
     <a href="#">About</a>
     <a href="#">API Docs</a>
     <a href="#">Privacy</a>
     <a href="mailto:hello@getsenti.org">Contact</a>
   </div>
-  <p class="footer-copy">© 2026 Getsenti. All rights reserved.</p>
+  <p class="footer-copy">© 2026 Senti. All rights reserved.</p>
 </footer>
 
 <script>
@@ -824,19 +831,46 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // Waitlist
+  // Waitlist — Mailchimp via no-cors fetch
   function joinWaitlist(inputId) {
-    const email = document.getElementById(inputId).value.trim();
+    const emailEl = document.getElementById(inputId);
+    const email = emailEl.value.trim();
+
     if (!email || !email.includes('@')) {
-      document.getElementById(inputId).style.borderColor = 'rgba(255,100,100,0.5)';
-      setTimeout(() => document.getElementById(inputId).style.borderColor = '', 1500);
+      emailEl.style.borderColor = 'rgba(255,100,100,0.5)';
+      setTimeout(() => emailEl.style.borderColor = '', 1500);
       return;
     }
-    // Here you'd connect to Mailchimp or your backend
-    document.getElementById('waitlistHero').style.display = 'none';
-    document.getElementById('waitlistBottom').style.display = 'none';
-    document.getElementById('successMsg').style.display = 'block';
-    document.querySelector('.hero-note').textContent = '✓ You\'re on the list!';
+
+    const btn = emailEl.nextElementSibling;
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    const body = new URLSearchParams({
+      u: '31cc51af0db54d203023805c1',
+      id: '49ececac75',
+      EMAIL: email
+    });
+
+    fetch('https://getsenti.us1.list-manage.com/subscribe/post', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    })
+    .then(() => {
+      document.getElementById('waitlistHero').style.display = 'none';
+      document.getElementById('waitlistBottom').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+      document.querySelector('.hero-note').textContent = '✓ You\'re on the list!';
+    })
+    .catch(() => {
+      btn.textContent = inputId === 'emailHero' ? 'Get Early Access' : 'Join the Waitlist';
+      btn.disabled = false;
+      emailEl.style.borderColor = 'rgba(255,100,100,0.5)';
+      emailEl.placeholder = 'Try again…';
+      setTimeout(() => { emailEl.style.borderColor = ''; emailEl.placeholder = 'Enter your email'; }, 2500);
+    });
   }
 
   function scrollToWaitlist() {
