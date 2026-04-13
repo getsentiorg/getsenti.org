@@ -3,22 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luvient — AI That Feels You</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Luvient — AI that knows how you feel.</title>
+<meta name="description" content="Luvient bridges emotional data from wearables to AI, creating a new emotional intelligence layer for every app.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #03010a;
-  --pink: #ff2d78;
-  --cyan: #00f5ff;
-  --purple: #b14dff;
-  --green: #00ff94;
-  --text: #f0eeff;
-  --muted: #7a6f9a;
-  --border: rgba(255,255,255,0.07);
-  --font: 'Outfit', sans-serif;
-  --body: 'DM Sans', sans-serif;
+  --bg: #FEFCF8;
+  --white: #FFFFFF;
+  --pink: #FF5E8E;
+  --pink-soft: #FFE8F2;
+  --purple: #7C3AED;
+  --purple-soft: #F0EAFF;
+  --orange: #FF8C42;
+  --teal: #00C9A7;
+  --teal-soft: #E6FAF7;
+  --text: #180D35;
+  --muted: #8878A3;
+  --border: #EDE8F5;
 }
 
 html { scroll-behavior: smooth; }
@@ -26,699 +32,1282 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--body);
-  font-weight: 300;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
   overflow-x: hidden;
-  cursor: none;
+  line-height: 1.6;
 }
 
-/* CURSOR */
-.cursor {
-  width: 10px; height: 10px;
-  background: var(--cyan);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: transform 0.1s;
-  mix-blend-mode: difference;
-}
-.cursor-ring {
-  width: 36px; height: 36px;
-  border: 1px solid rgba(0,245,255,0.5);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%,-50%);
-  transition: width 0.25s, height 0.25s;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-/* ANIMATED BG ORBS */
-.bg-canvas {
-  position: fixed; inset: 0;
-  z-index: 0; overflow: hidden; pointer-events: none;
-}
-.bg-orb {
-  position: absolute; border-radius: 50%;
-  filter: blur(110px); opacity: 0.14;
-  animation: floatOrb 22s ease-in-out infinite;
-}
-.orb1 { width: 650px; height: 650px; background: var(--pink); top: -220px; left: -120px; animation-delay: 0s; }
-.orb2 { width: 520px; height: 520px; background: var(--cyan); top: 25%; right: -120px; animation-delay: -8s; }
-.orb3 { width: 420px; height: 420px; background: var(--purple); bottom: 5%; left: 15%; animation-delay: -15s; }
-.orb4 { width: 320px; height: 320px; background: var(--green); bottom: -80px; right: 15%; animation-delay: -5s; }
-@keyframes floatOrb {
-  0%,100% { transform: translate(0,0) scale(1); }
-  33% { transform: translate(40px,-30px) scale(1.1); }
-  66% { transform: translate(-30px,40px) scale(0.95); }
-}
-
-/* GRID */
-.bg-grid {
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 50px 50px;
-  pointer-events: none; z-index: 0;
-}
-
-/* NAV */
+/* ════════ NAV ════════ */
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 22px 48px;
-  display: flex; justify-content: space-between; align-items: center;
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  background: rgba(3,1,10,0.72);
-  transition: border-color 0.3s;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  padding: 20px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.3s, background 0.3s;
+  background: transparent;
 }
-nav.scrolled { border-color: rgba(255,255,255,0.11); }
-
+nav.scrolled {
+  background: rgba(254,252,248,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 2px 20px rgba(124,58,237,0.07);
+}
 .logo {
-  font-family: var(--font); font-weight: 900; font-size: 24px; letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--pink), var(--cyan), var(--purple));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  text-decoration: none;
 }
-
+.logo span { color: var(--purple); }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--text); }
 .nav-cta {
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  color: white; border: none; padding: 11px 26px; border-radius: 100px;
-  font-family: var(--font); font-weight: 600; font-size: 14px; cursor: none;
-  transition: all 0.3s; box-shadow: 0 0 20px rgba(255,45,120,0.25);
+  background: var(--purple);
+  color: var(--white);
+  border: none;
+  padding: 11px 24px;
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-decoration: none;
+  display: inline-block;
+  letter-spacing: 0.2px;
 }
-.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(255,45,120,0.45); }
+.nav-cta:hover {
+  background: #6D28D9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(124,58,237,0.3);
+}
 
-/* HERO */
-.hero {
+/* ════════ HERO ════════ */
+#hero {
   min-height: 100vh;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  text-align: center; padding: 130px 24px 90px;
-  position: relative; z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  padding: 100px 24px 80px;
+}
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.blob-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(255,94,142,0.17) 0%, transparent 70%);
+  top: -140px; right: -80px;
+  animation: driftA 18s ease-in-out infinite;
+}
+.blob-2 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(124,58,237,0.13) 0%, transparent 70%);
+  bottom: -60px; left: -100px;
+  animation: driftB 22s ease-in-out infinite;
+}
+.blob-3 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(255,140,66,0.11) 0%, transparent 70%);
+  top: 40%; right: 8%;
+  animation: driftC 16s ease-in-out infinite;
+}
+@keyframes driftA {
+  0%,100%{ transform:translate(0,0) scale(1); }
+  33%{ transform:translate(-30px,40px) scale(1.05); }
+  66%{ transform:translate(20px,-20px) scale(0.97); }
+}
+@keyframes driftB {
+  0%,100%{ transform:translate(0,0) scale(1); }
+  40%{ transform:translate(40px,-30px) scale(1.08); }
+  70%{ transform:translate(-15px,20px) scale(0.95); }
+}
+@keyframes driftC {
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(-25px,35px) scale(1.1); }
 }
 
+.hero-inner {
+  max-width: 1120px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
 .hero-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(0,245,255,0.07); border: 1px solid rgba(0,245,255,0.2);
-  border-radius: 100px; padding: 8px 18px;
-  font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--cyan); margin-bottom: 40px;
-  animation: fadeUp 0.8s ease both;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--purple-soft);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--purple);
+  margin-bottom: 28px;
 }
-.badge-dot {
-  width: 7px; height: 7px; background: var(--cyan); border-radius: 50%;
-  animation: blink 2s infinite; box-shadow: 0 0 8px var(--cyan);
+.hero-badge .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: pulse-dot 2s ease-in-out infinite;
 }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-h1 {
-  font-family: var(--font); font-weight: 900;
-  font-size: clamp(52px, 9vw, 110px);
-  line-height: 0.95; letter-spacing: -3px; margin-bottom: 28px;
-  animation: fadeUp 0.8s 0.1s ease both;
+@keyframes pulse-dot {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:0.5; transform:scale(0.8); }
 }
-.line-accent {
-  display: block;
-  background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 40%, var(--cyan) 80%, var(--green) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  background-size: 200%; animation: shimmer 4s linear infinite;
+.hero-headline {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 5.5vw, 68px);
+  letter-spacing: -2.5px;
+  line-height: 1.07;
+  color: var(--text);
+  margin-bottom: 22px;
 }
-@keyframes shimmer { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-
+.hero-headline .gradient-text {
+  background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 .hero-sub {
-  font-size: clamp(16px, 2vw, 20px); color: var(--muted);
-  max-width: 560px; line-height: 1.75; margin-bottom: 52px;
-  animation: fadeUp 0.8s 0.2s ease both;
+  font-size: 18px;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 40px;
+  max-width: 460px;
 }
-
 .waitlist-form {
-  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-  animation: fadeUp 0.8s 0.3s ease both;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  max-width: 480px;
 }
-.waitlist-input {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  border-radius: 100px; padding: 16px 28px;
-  font-family: var(--body); font-size: 15px; color: var(--text); width: 300px;
-  outline: none; transition: border-color 0.25s, box-shadow 0.25s;
+.waitlist-form input {
+  flex: 1;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  padding: 14px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  min-width: 0;
 }
-.waitlist-input::placeholder { color: var(--muted); }
-.waitlist-input:focus {
-  border-color: rgba(0,245,255,0.4);
-  box-shadow: 0 0 0 4px rgba(0,245,255,0.06), 0 0 30px rgba(0,245,255,0.1);
+.waitlist-form input::placeholder { color: var(--muted); }
+.waitlist-form input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 4px rgba(124,58,237,0.08);
 }
-.waitlist-btn {
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  color: white; border: none; border-radius: 100px; padding: 16px 32px;
-  font-family: var(--font); font-weight: 700; font-size: 15px; cursor: none;
-  transition: all 0.25s; white-space: nowrap; box-shadow: 0 0 20px rgba(255,45,120,0.3);
+.btn-waitlist {
+  background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 100%);
+  color: var(--white);
+  border: none;
+  border-radius: 100px;
+  padding: 14px 26px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
 }
-.waitlist-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,45,120,0.45); }
+.btn-waitlist:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(124,58,237,0.3);
+}
+.btn-waitlist:disabled { opacity:0.7; cursor:not-allowed; transform:none; }
 
 .hero-note {
-  margin-top: 20px; font-size: 13px; color: var(--muted);
-  animation: fadeUp 0.8s 0.4s ease both;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-note .avatars { display: flex; }
+.hero-note .av {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  margin-left: -7px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pink-soft);
+}
+.hero-note .av:first-child { margin-left: 0; }
+
+#successMsg {
+  display: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--teal);
+  padding: 14px 0;
 }
 
-.hero-social-proof {
-  margin-top: 60px; display: flex; align-items: center; gap: 16px;
-  animation: fadeUp 0.8s 0.5s ease both;
+.hero-char-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.avatars { display: flex; }
-.avatar {
-  width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--bg);
-  margin-left: -10px; background: linear-gradient(135deg, var(--pink), var(--cyan));
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
+.hero-char { animation: float 4s ease-in-out infinite; }
+@keyframes float {
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-18px); }
 }
-.avatar:first-child { margin-left: 0; }
-.proof-text { font-size: 13px; color: var(--muted); }
-.proof-text strong { color: var(--text); }
+.scroll-hint {
+  position: absolute;
+  bottom: 36px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  z-index: 2;
+  animation: bounce-hint 2.2s ease-in-out infinite;
+}
+.scroll-hint svg { opacity: 0.45; }
+@keyframes bounce-hint {
+  0%,100%{ transform:translateX(-50%) translateY(0); }
+  50%{ transform:translateX(-50%) translateY(8px); }
+}
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* DIVIDER */
-.full-divider {
-  width: 100%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
-  position: relative; z-index: 1;
-}
-
-/* SECTION LABELS */
+/* ════════ COMMON ════════ */
+section { position: relative; }
 .section-label {
-  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--cyan); margin-bottom: 20px; display: block; font-weight: 600;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 16px;
 }
-.section-title {
-  font-family: var(--font); font-weight: 900;
-  font-size: clamp(30px, 4vw, 52px); letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 20px;
-}
-.section-body { font-size: 18px; color: var(--muted); line-height: 1.8; max-width: 600px; }
-
-/* PROBLEM */
-.problem-section {
-  text-align: center; max-width: 1100px; margin: 0 auto;
-  padding: 100px 24px 120px; position: relative; z-index: 1;
-}
-.problem-cards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px; margin-top: 64px;
-}
-.problem-card {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-  border-radius: 24px; padding: 36px 32px; text-align: left;
-  transition: all 0.3s; position: relative; overflow: hidden;
-}
-.problem-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--pink), var(--purple), var(--cyan));
-  opacity: 0; transition: opacity 0.3s;
-}
-.problem-card:hover { border-color: rgba(0,245,255,0.2); transform: translateY(-4px); background: rgba(255,255,255,0.05); }
-.problem-card:hover::before { opacity: 1; }
-.problem-icon { font-size: 32px; margin-bottom: 20px; display: block; }
-.problem-card h3 { font-family: var(--font); font-weight: 700; font-size: 18px; margin-bottom: 12px; }
-.problem-card p { font-size: 15px; color: var(--muted); line-height: 1.7; }
-
-/* HOW IT WORKS */
-.how-section {
-  max-width: 1100px; margin: 0 auto;
-  padding: 80px 24px 120px; position: relative; z-index: 1;
-}
-.steps {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px; margin-top: 64px;
-}
-.step {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-  border-radius: 24px; padding: 40px 36px;
-  transition: all 0.3s; position: relative; overflow: hidden;
-}
-.step::after {
-  content: ''; position: absolute; inset: 0; border-radius: 24px;
-  background: linear-gradient(135deg, rgba(255,45,120,0.05), rgba(177,77,255,0.05), rgba(0,245,255,0.05));
-  opacity: 0; transition: opacity 0.3s;
-}
-.step:hover { border-color: rgba(177,77,255,0.3); transform: translateY(-4px); }
-.step:hover::after { opacity: 1; }
-.step-number {
-  font-family: var(--font); font-weight: 900; font-size: 72px;
-  background: linear-gradient(135deg, var(--pink), var(--purple));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  opacity: 0.15; line-height: 1; margin-bottom: 16px; letter-spacing: -3px;
-}
-.step h3 { font-family: var(--font); font-weight: 700; font-size: 22px; margin-bottom: 14px; }
-.step p { font-size: 15px; color: var(--muted); line-height: 1.75; }
-.step-tag {
-  display: inline-block; margin-top: 20px;
-  font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-  color: var(--cyan); background: rgba(0,245,255,0.08);
-  padding: 6px 14px; border-radius: 100px; border: 1px solid rgba(0,245,255,0.15); font-weight: 600;
-}
-
-/* DEMO */
-.demo-section {
-  max-width: 1100px; margin: 0 auto;
-  padding: 80px 24px 120px; position: relative; z-index: 1;
-}
-.demo-container {
-  margin-top: 48px; border-radius: 20px; overflow: hidden;
-  border: 1px solid rgba(177,77,255,0.25); position: relative;
-  box-shadow: 0 0 60px rgba(177,77,255,0.12), 0 0 120px rgba(0,245,255,0.05);
-}
-.demo-container iframe { width: 100%; height: 650px; border: none; display: block; }
-.demo-overlay {
-  position: absolute; inset: 0;
-  background: rgba(3,1,10,0.65); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background 0.3s;
-}
-.demo-overlay:hover { background: rgba(3,1,10,0.5); }
-.demo-container.active .demo-overlay { display: none; }
-.demo-play-btn { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.demo-play-icon {
-  width: 84px; height: 84px; border-radius: 50%;
-  background: rgba(0,245,255,0.1); border: 2px solid var(--cyan);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; transition: all 0.3s; box-shadow: 0 0 30px rgba(0,245,255,0.2);
-}
-.demo-overlay:hover .demo-play-icon {
-  background: rgba(0,245,255,0.2); transform: scale(1.1); box-shadow: 0 0 50px rgba(0,245,255,0.35);
-}
-.demo-play-text { font-family: var(--font); font-weight: 700; font-size: 20px; }
-.demo-play-sub { font-size: 13px; color: var(--muted); }
-
-/* VISION */
-.vision-section {
-  max-width: 1100px; margin: 0 auto;
-  padding: 80px 24px 120px; position: relative; z-index: 1;
-}
-.vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-.vision-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 48px; }
-.stat {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-  border-radius: 16px; padding: 28px 24px; transition: all 0.3s;
-}
-.stat:hover { border-color: rgba(0,245,255,0.2); transform: translateY(-2px); }
-.stat-val {
-  font-family: var(--font); font-weight: 900; font-size: 38px; letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--pink), var(--cyan));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
-.vision-visual {
-  position: relative; height: 400px;
-  display: flex; align-items: center; justify-content: center;
-}
-.pulse-rings { position: relative; width: 200px; height: 200px; }
-.ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 1px solid rgba(0,245,255,0.25);
-  animation: expand 3s ease-out infinite;
-}
-.ring:nth-child(2) { animation-delay: 1s; }
-.ring:nth-child(3) { animation-delay: 2s; }
-@keyframes expand {
-  0% { transform: scale(1); opacity: 0.7; }
-  100% { transform: scale(3); opacity: 0; }
-}
-.pulse-core {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 84px; height: 84px;
-  background: radial-gradient(circle, rgba(0,245,255,0.2) 0%, rgba(177,77,255,0.1) 50%, transparent 70%);
-  border-radius: 50%; border: 1px solid rgba(0,245,255,0.4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; box-shadow: 0 0 40px rgba(0,245,255,0.15);
-}
-
-/* CTA */
-.cta-section {
-  text-align: center; padding: 100px 24px 140px;
-  position: relative; z-index: 1; overflow: hidden;
-}
-.cta-section::before {
-  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 700px; height: 400px;
-  background: radial-gradient(ellipse, rgba(177,77,255,0.08) 0%, transparent 70%);
-  border-radius: 50%; pointer-events: none;
-}
-.cta-section h2 {
-  font-family: var(--font); font-weight: 900;
-  font-size: clamp(36px, 5vw, 68px); letter-spacing: -2px; line-height: 1.05;
-  margin-bottom: 24px; max-width: 700px; margin-left: auto; margin-right: auto;
-}
-.cta-gradient {
-  background: linear-gradient(135deg, var(--pink), var(--purple), var(--cyan));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.cta-section p {
-  color: var(--muted); font-size: 18px; margin-bottom: 48px;
-  max-width: 480px; margin-left: auto; margin-right: auto;
-}
-.success-msg {
-  display: none; color: var(--green); font-size: 16px;
-  margin-top: 24px; font-weight: 500;
-}
-
-/* FOOTER */
-footer {
-  border-top: 1px solid var(--border); padding: 40px 48px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 16px; position: relative; z-index: 1;
-}
-.footer-links { display: flex; gap: 28px; }
-.footer-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
-.footer-links a:hover { color: var(--text); }
-.footer-copy { color: var(--muted); font-size: 13px; }
-
-/* SCROLL REVEAL */
 .reveal {
-  opacity: 0; transform: translateY(32px);
+  opacity: 0;
+  transform: translateY(28px);
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal.visible { opacity:1; transform:translateY(0); }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .cursor, .cursor-ring { display: none; }
-  body { cursor: auto; }
-  .nav-cta, .waitlist-btn { cursor: pointer; }
-  nav { padding: 16px 20px; }
-  .vision-grid { grid-template-columns: 1fr; gap: 48px; }
-  .vision-visual { height: 260px; }
-  .vision-stats { grid-template-columns: 1fr 1fr; }
-  footer { flex-direction: column; text-align: center; padding: 32px 20px; }
-  .waitlist-form { flex-direction: column; align-items: center; width: 100%; }
-  .waitlist-input { width: 100%; max-width: 340px; }
-  .waitlist-btn { width: 100%; max-width: 340px; }
+/* ════════ JOURNEY ════════ */
+#journey {
+  background: var(--white);
+  padding: 100px 24px 120px;
 }
+.journey-header {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 80px;
+}
+.journey-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 4.5vw, 52px);
+  letter-spacing: -1.5px;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.journey-header p {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.75;
+}
+.journey-track {
+  max-width: 1020px;
+  margin: 0 auto;
+  position: relative;
+}
+.journey-line {
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--border) 8%, var(--border) 92%, transparent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* chapter row */
+.chapter {
+  display: grid;
+  grid-template-columns: 1fr 64px 1fr;
+  align-items: center;
+  margin-bottom: 80px;
+  position: relative;
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.chapter.visible { opacity:1; transform:translateY(0); }
+
+.chapter-node {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.node-dot {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: border-color 0.4s, box-shadow 0.4s;
+  flex-shrink: 0;
+}
+.chapter.visible .node-dot {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 7px rgba(124,58,237,0.09), 0 0 0 14px rgba(124,58,237,0.04);
+}
+
+.chapter-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 30px;
+}
+.chapter-card .ch-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.chapter-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.chapter-card p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+.ch-tag {
+  display: inline-block;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ch-tag.pink   { background: var(--pink-soft); color: var(--pink); }
+.ch-tag.orange { background: #FFF4EC; color: var(--orange); }
+.ch-tag.purple { background: var(--purple-soft); color: var(--purple); }
+.ch-tag.teal   { background: var(--teal-soft); color: var(--teal); }
+
+.chapter-char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+}
+.char-bubble {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  position: relative;
+  text-align: center;
+  max-width: 180px;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(24,13,53,0.05);
+}
+.char-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 9px solid var(--white);
+}
+/* Right chapters: char | node | card */
+.chapter.right .chapter-card { grid-column: 3; grid-row: 1; }
+.chapter.right .chapter-node { grid-column: 2; grid-row: 1; }
+.chapter.right .chapter-char { grid-column: 1; grid-row: 1; }
+
+/* ════════ STATS ════════ */
+#stats {
+  background: var(--bg);
+  padding: 90px 24px;
+}
+.stats-inner {
+  max-width: 1020px;
+  margin: 0 auto;
+}
+.stats-inner h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 46px);
+  letter-spacing: -1.2px;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 12px;
+}
+.stats-sub {
+  text-align: center;
+  color: var(--muted);
+  font-size: 16px;
+  margin-bottom: 52px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(124,58,237,0.1);
+}
+.stat-number {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 38px;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.stat-number.pink   { color: var(--pink); }
+.stat-number.purple { color: var(--purple); }
+.stat-number.orange { color: var(--orange); }
+.stat-number.teal   { color: var(--teal); }
+.stat-label { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.stat-note  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ════════ DEMO ════════ */
+#demo {
+  background: var(--purple-soft);
+  padding: 90px 24px;
+}
+.demo-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+}
+.demo-inner h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.demo-sub {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0 auto 44px;
+  max-width: 500px;
+}
+.demo-container {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 80px rgba(124,58,237,0.12);
+  background: var(--white);
+  aspect-ratio: 16/9;
+}
+.demo-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: linear-gradient(135deg, rgba(240,234,255,0.95), rgba(254,252,248,0.95));
+  cursor: pointer;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+.demo-container.active .demo-overlay { opacity:0; pointer-events:none; }
+.play-btn {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 40px rgba(124,58,237,0.4);
+  transition: transform 0.25s;
+}
+.demo-overlay:hover .play-btn { transform: scale(1.08); }
+.play-btn svg { fill: white; margin-left: 4px; }
+.overlay-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.overlay-sub { font-size: 14px; color: var(--muted); }
+#demoFrame { width:100%; height:100%; border:none; }
+
+/* ════════ CTA ════════ */
+#cta {
+  background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 100%);
+  padding: 100px 24px;
+  position: relative;
+  overflow: hidden;
+}
+#cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.cta-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+#cta h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(34px, 5vw, 58px);
+  letter-spacing: -1.5px;
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 18px;
+}
+.cta-sub {
+  font-size: 18px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.7;
+  margin-bottom: 44px;
+}
+.waitlist-form-white {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  max-width: 480px;
+  margin: 0 auto 18px;
+}
+.waitlist-form-white input {
+  flex: 1;
+  background: rgba(255,255,255,0.18);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-radius: 100px;
+  padding: 14px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.25s, background 0.25s;
+  min-width: 0;
+  backdrop-filter: blur(8px);
+}
+.waitlist-form-white input::placeholder { color: rgba(255,255,255,0.55); }
+.waitlist-form-white input:focus {
+  border-color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.25);
+}
+.btn-waitlist-white {
+  background: var(--white);
+  color: var(--purple);
+  border: none;
+  border-radius: 100px;
+  padding: 14px 26px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.btn-waitlist-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.btn-waitlist-white:disabled { opacity:0.7; cursor:not-allowed; transform:none; }
+.cta-note { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+/* ════════ FOOTER ════════ */
+footer {
+  background: var(--text);
+  padding: 64px 48px 40px;
+}
+.footer-inner { max-width: 1020px; margin: 0 auto; }
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+.footer-brand .logo {
+  color: var(--white);
+  font-size: 20px;
+  display: block;
+  margin-bottom: 10px;
+}
+.footer-brand .logo span { color: var(--pink); }
+.footer-tagline {
+  font-size: 13px;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.6;
+  max-width: 200px;
+}
+.footer-links { display:flex; gap:48px; flex-wrap:wrap; }
+.footer-col h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.footer-col a {
+  display: block;
+  font-size: 14px;
+  color: rgba(255,255,255,0.68);
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--white); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-copy { font-size: 13px; color: rgba(255,255,255,0.32); }
+.footer-love { font-size: 13px; color: rgba(255,255,255,0.32); }
+.footer-love span { color: var(--pink); }
+
+/* ════════ MOBILE ════════ */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-link { display: none; }
+  .nav-cta { padding: 9px 18px; font-size: 13px; }
+
+  #hero { padding: 90px 20px 60px; }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
+  }
+  .hero-char-wrap { order: -1; }
+  .hero-sub { max-width: 100%; margin-left: auto; margin-right: auto; }
+  .waitlist-form {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .waitlist-form input { border-radius: 14px; }
+  .btn-waitlist { border-radius: 14px; width: 100%; }
+  .hero-note { justify-content: center; }
+  .scroll-hint { display: none; }
+
+  #journey { padding: 70px 20px 80px; }
+  .journey-line { display: none; }
+  .chapter {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    gap: 16px;
+    margin-bottom: 44px;
+  }
+  .chapter-node { display: none; }
+  .chapter.right .chapter-card,
+  .chapter.right .chapter-node,
+  .chapter.right .chapter-char {
+    grid-column: unset !important;
+    grid-row: unset !important;
+  }
+  .chapter-char {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    gap: 16px;
+  }
+  .char-bubble::after { display: none; }
+  .chapter-char svg { width: 80px; height: 80px; }
+
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stat-number { font-size: 28px; }
+
+  .demo-container { border-radius: 16px; aspect-ratio: 4/3; }
+
+  .waitlist-form-white {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .waitlist-form-white input { border-radius: 14px; }
+  .btn-waitlist-white { border-radius: 14px; width: 100%; }
+
+  footer { padding: 48px 20px 32px; }
+  .footer-top { flex-direction: column; gap: 28px; }
+  .footer-links { gap: 28px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+}
+
 @media (max-width: 480px) {
-  nav { padding: 14px 16px; }
-  .vision-stats { grid-template-columns: 1fr; }
-  h1 { letter-spacing: -1.5px; }
-  .demo-container iframe { height: 420px; }
+  .hero-headline { font-size: clamp(34px, 8vw, 48px); letter-spacing: -1.5px; }
+  .hero-sub { font-size: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-number { font-size: 24px; }
+  .stat-label { font-size: 12px; }
+  .stat-note  { font-size: 11px; }
+  .chapter-card h3 { font-size: 18px; }
+  .chapter-card p  { font-size: 14px; }
 }
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
-<div class="bg-canvas">
-  <div class="bg-orb orb1"></div>
-  <div class="bg-orb orb2"></div>
-  <div class="bg-orb orb3"></div>
-  <div class="bg-orb orb4"></div>
-</div>
-<div class="bg-grid"></div>
-
-<!-- NAV -->
-<nav id="navbar">
-  <div class="logo">Luvient</div>
-  <button class="nav-cta" onclick="scrollToWaitlist()">Join Waitlist</button>
+<!-- ═══ NAV ═══ -->
+<nav id="mainNav">
+  <a href="/" class="logo">Lu<span>vient</span></a>
+  <div class="nav-right">
+    <a href="#journey" class="nav-link">Story</a>
+    <a href="#demo"    class="nav-link">Demo</a>
+    <a href="#cta"     class="nav-cta">Join Waitlist</a>
+  </div>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-badge">
-    <span class="badge-dot"></span>
-    Now accepting early access
-  </div>
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-  <h1>
-    AI that knows<br>
-    <span class="line-accent">how you feel.</span>
-  </h1>
-
-  <p class="hero-sub">
-    Luvient is the emotional context layer for AI. We connect your real-time biological state to any AI system — so it responds to how you actually feel, not just what you type.
-  </p>
-
-  <div class="waitlist-form" id="waitlistHero">
-    <input class="waitlist-input" type="email" placeholder="Enter your email" id="emailHero">
-    <button class="waitlist-btn" onclick="joinWaitlist('emailHero')">Get Early Access</button>
-  </div>
-  <p class="hero-note" id="heroNote">Free for early adopters · No credit card required</p>
-
-  <div class="hero-social-proof">
-    <div class="avatars">
-      <div class="avatar">👨‍💻</div>
-      <div class="avatar">👩‍⚕️</div>
-      <div class="avatar">👨‍🔬</div>
-      <div class="avatar">👩‍💼</div>
-    </div>
-    <p class="proof-text"><strong>240+ people</strong> already on the waitlist</p>
-  </div>
-</div>
-
-<div class="full-divider"></div>
-
-<!-- PROBLEM -->
-<div class="problem-section">
-  <span class="section-label reveal">The Problem</span>
-  <h2 class="section-title reveal">AI is smart.<br>But it's emotionally blind.</h2>
-  <p class="section-body reveal" style="margin: 0 auto;">Every AI today responds to your words. None of them know if you're anxious, exhausted, focused, or overwhelmed. That gap costs real outcomes.</p>
-
-  <div class="problem-cards">
-    <div class="problem-card reveal">
-      <span class="problem-icon">🤖</span>
-      <h3>AI ignores your state</h3>
-      <p>You can be in the middle of a panic attack and your AI assistant gives you the same robotic response as always. It has no idea.</p>
-    </div>
-    <div class="problem-card reveal">
-      <span class="problem-icon">📉</span>
-      <h3>Context is lost</h3>
-      <p>Your stress level, your focus, your energy — all invisible to the tools you use every day. The result is responses that miss the mark.</p>
-    </div>
-    <div class="problem-card reveal">
-      <span class="problem-icon">🧩</span>
-      <h3>No bridge exists</h3>
-      <p>Wearables collect emotional data. AI needs emotional data. Nobody has built the middleware to connect them. Until now.</p>
-    </div>
-  </div>
-</div>
-
-<div class="full-divider"></div>
-
-<!-- HOW IT WORKS -->
-<div class="how-section">
-  <span class="section-label reveal">How Luvient Works</span>
-  <h2 class="section-title reveal">Three steps.<br>One emotional layer.</h2>
-
-  <div class="steps">
-    <div class="step reveal">
-      <div class="step-number">01</div>
-      <h3>Read</h3>
-      <p>Luvient reads your biometric signals — heart rate variability, skin conductance, and more — from any compatible wearable in real time.</p>
-      <span class="step-tag">Wearable Agnostic</span>
-    </div>
-    <div class="step reveal">
-      <div class="step-number">02</div>
-      <h3>Translate</h3>
-      <p>Our engine converts raw biometric data into a structured emotional context object — stress, focus, fatigue, arousal — updated every few seconds.</p>
-      <span class="step-tag">Emotional API</span>
-    </div>
-    <div class="step reveal">
-      <div class="step-number">03</div>
-      <h3>Inject</h3>
-      <p>That context is passed into any AI system via our simple API. The AI now knows how you feel and adapts its tone, pacing, and content accordingly.</p>
-      <span class="step-tag">Any AI, Any App</span>
-    </div>
-  </div>
-</div>
-
-<div class="full-divider"></div>
-
-<!-- LIVE DEMO -->
-<div class="demo-section">
-  <span class="section-label reveal">Try It Now</span>
-  <h2 class="section-title reveal">See Luvient in action.</h2>
-  <p class="section-body reveal" style="margin: 0 auto;">Adjust the biometric sliders and watch how the AI adapts its tone, pacing, and personality in real time based on your emotional state.</p>
-
-  <div class="demo-container reveal" id="demoContainer">
-    <div class="demo-overlay" onclick="activateDemo()">
-      <div class="demo-play-btn">
-        <div class="demo-play-icon">▶</div>
-        <div class="demo-play-text">Launch Live Demo</div>
-        <div class="demo-play-sub">Interactive — no install required</div>
+  <div class="hero-inner">
+    <!-- Left: copy + form -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Now in early access
       </div>
-    </div>
-    <iframe id="demoFrame" loading="lazy"></iframe>
-  </div>
 
-  <p class="reveal" style="margin-top: 32px; font-size: 15px; color: var(--muted); text-align: center; position: relative; z-index: 1;">
-    Tried the demo? <a href="/feedback.html" style="color: var(--cyan); text-decoration: none; font-weight: 500; border-bottom: 1px solid rgba(0,245,255,0.3);">Tell us what you think →</a>
-  </p>
-</div>
+      <h1 class="hero-headline">
+        AI that knows<br>
+        <span class="gradient-text">how you feel.</span>
+      </h1>
 
-<div class="full-divider"></div>
+      <p class="hero-sub">
+        Luvient bridges emotional signals from wearables directly into AI — creating a living emotional layer for every app, every conversation, every moment.
+      </p>
 
-<!-- VISION -->
-<div class="vision-section">
-  <div class="vision-grid">
-    <div>
-      <span class="section-label reveal">The Opportunity</span>
-      <h2 class="section-title reveal">The missing layer between humans and machines.</h2>
-      <p class="section-body reveal">Every major platform — healthcare, productivity, education, mental wellness — needs emotionally aware AI. Luvient is the infrastructure that makes it possible.</p>
-
-      <div class="vision-stats reveal">
-        <div class="stat">
-          <div class="stat-val">$13.8B</div>
-          <div class="stat-label">Affective computing market by 2032 — 22.7% CAGR</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">1B+</div>
-          <div class="stat-label">Connected wearable devices worldwide</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">0</div>
-          <div class="stat-label">Emotional middleware APIs today</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">Day 1</div>
-          <div class="stat-label">You're here at the beginning</div>
-        </div>
+      <div id="waitlistHero" class="waitlist-form">
+        <input type="email" id="heroEmail" placeholder="your@email.com" autocomplete="email">
+        <button class="btn-waitlist" onclick="joinWaitlist('heroEmail','waitlistHero')">Get Early Access</button>
       </div>
+
+      <div id="successMsg">🎉 You're on the list! We'll be in touch soon.</div>
+
+      <p class="hero-note" id="heroNote">
+        <span class="avatars">
+          <span class="av">😊</span>
+          <span class="av">🧠</span>
+          <span class="av">💜</span>
+        </span>
+        240+ people on the waitlist
+      </p>
     </div>
 
-    <div class="vision-visual reveal">
-      <div class="pulse-rings">
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="pulse-core">🧠</div>
+    <!-- Right: hero character -->
+    <div class="hero-char-wrap">
+      <div class="hero-char">
+        <!-- Happy Purple Robot "Lu" -->
+        <svg width="230" height="268" viewBox="0 0 230 268" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="115" cy="258" rx="72" ry="11" fill="#7C3AED" opacity="0.12"/>
+          <!-- Antenna -->
+          <line x1="115" y1="26" x2="115" y2="54" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="115" cy="19" r="10" fill="#FF5E8E"/>
+          <circle cx="115" cy="19" r="5.5" fill="white" opacity="0.7"/>
+          <!-- Head -->
+          <rect x="65" y="48" width="100" height="80" rx="22" fill="#7C3AED"/>
+          <rect x="76" y="59" width="78" height="58" rx="13" fill="white" opacity="0.94"/>
+          <!-- Heart eyes -->
+          <text x="97" y="93" font-size="22" text-anchor="middle">❤️</text>
+          <text x="148" y="93" font-size="22" text-anchor="middle">❤️</text>
+          <!-- Big smile -->
+          <path d="M88 108 Q115 127 142 108" stroke="#7C3AED" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Ear bolts -->
+          <rect x="53" y="72" width="12" height="18" rx="6" fill="#5B21B6"/>
+          <rect x="165" y="72" width="12" height="18" rx="6" fill="#5B21B6"/>
+          <!-- Body -->
+          <rect x="57" y="138" width="116" height="92" rx="24" fill="#7C3AED"/>
+          <!-- Chest panel -->
+          <rect x="79" y="154" width="72" height="46" rx="11" fill="white" opacity="0.14"/>
+          <!-- Heart icon -->
+          <text x="115" y="185" font-size="24" text-anchor="middle">💜</text>
+          <!-- Left arm waving up -->
+          <rect x="18" y="128" width="38" height="15" rx="7.5" fill="#6D28D9" transform="rotate(-35 18 128)"/>
+          <circle cx="22" cy="152" r="11" fill="#5B21B6"/>
+          <!-- Right arm -->
+          <rect x="174" y="128" width="38" height="15" rx="7.5" fill="#6D28D9" transform="rotate(35 212 128)"/>
+          <circle cx="208" cy="152" r="11" fill="#5B21B6"/>
+          <!-- Legs -->
+          <rect x="78" y="230" width="28" height="30" rx="11" fill="#5B21B6"/>
+          <rect x="124" y="230" width="28" height="30" rx="11" fill="#5B21B6"/>
+          <!-- Feet -->
+          <rect x="72" y="250" width="40" height="16" rx="8" fill="#4C1D95"/>
+          <rect x="118" y="250" width="40" height="16" rx="8" fill="#4C1D95"/>
+        </svg>
       </div>
     </div>
   </div>
-</div>
 
-<div class="full-divider"></div>
-
-<!-- BOTTOM CTA -->
-<div class="cta-section" id="waitlist">
-  <h2 class="reveal">Be first.<br><span class="cta-gradient">Shape what's next.</span></h2>
-  <p class="reveal">Join the waitlist and get early API access, founder pricing, and a direct line to the team building Luvient.</p>
-
-  <div class="waitlist-form reveal" id="waitlistBottom">
-    <input class="waitlist-input" type="email" placeholder="Enter your email" id="emailBottom">
-    <button class="waitlist-btn" onclick="joinWaitlist('emailBottom')">Join the Waitlist</button>
+  <div class="scroll-hint">
+    <span>scroll down</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
   </div>
-  <p class="success-msg" id="successMsg">✓ You're on the list. We'll be in touch soon.</p>
-  <p class="hero-note reveal" style="margin-top: 16px;">We'll never spam you. Unsubscribe anytime.</p>
-</div>
+</section>
 
-<!-- FOOTER -->
+<!-- ═══ JOURNEY ═══ -->
+<section id="journey">
+  <div class="journey-header reveal">
+    <span class="section-label">The Story</span>
+    <h2>How Luvient<br>came to be.</h2>
+    <p>Follow Lu on a journey through the problem space — and discover why emotional AI is the missing piece the world has been waiting for.</p>
+  </div>
+
+  <div class="journey-track">
+    <div class="journey-line"></div>
+
+    <!-- Chapter 01 — LEFT: card | node | char -->
+    <div class="chapter" data-chapter="1">
+      <div class="chapter-card">
+        <div class="ch-label">Chapter 01</div>
+        <h3>AI is emotionally blind.</h3>
+        <p>Every AI system responds to what you type — not how you feel. Stress, fatigue, joy, grief: completely invisible to the machine.</p>
+        <span class="ch-tag pink">The Problem</span>
+      </div>
+      <div class="chapter-node">
+        <div class="node-dot">😔</div>
+      </div>
+      <div class="chapter-char">
+        <div class="char-bubble">Why doesn't AI get me?</div>
+        <!-- Sad Pink Robot -->
+        <svg width="130" height="158" viewBox="0 0 130 158" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="65" y1="12" x2="65" y2="30" stroke="#FF5E8E" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="65" cy="8" r="7" fill="#FFB3CC"/>
+          <rect x="28" y="26" width="74" height="62" rx="16" fill="#FF5E8E"/>
+          <rect x="38" y="34" width="54" height="46" rx="10" fill="white" opacity="0.92"/>
+          <!-- Sad downcast eyes -->
+          <ellipse cx="52" cy="51" rx="5.5" ry="6.5" fill="#FF5E8E"/>
+          <ellipse cx="78" cy="51" rx="5.5" ry="6.5" fill="#FF5E8E"/>
+          <circle cx="53" cy="53" r="3" fill="#180D35"/>
+          <circle cx="79" cy="53" r="3" fill="#180D35"/>
+          <!-- Tears -->
+          <ellipse cx="51" cy="63" rx="2" ry="3.5" fill="#ADE8F4" opacity="0.75"/>
+          <ellipse cx="79" cy="63" rx="2" ry="3.5" fill="#ADE8F4" opacity="0.75"/>
+          <!-- Frown -->
+          <path d="M50 71 Q65 63 80 71" stroke="#E84C7E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="20" y="36" width="8" height="14" rx="4" fill="#E84C7E"/>
+          <rect x="102" y="36" width="8" height="14" rx="4" fill="#E84C7E"/>
+          <rect x="28" y="90" width="74" height="56" rx="16" fill="#FF5E8E"/>
+          <rect x="42" y="100" width="46" height="30" rx="8" fill="white" opacity="0.12"/>
+          <text x="65" y="122" font-size="18" text-anchor="middle">💔</text>
+          <rect x="38" y="148" width="22" height="14" rx="7" fill="#E84C7E"/>
+          <rect x="70" y="148" width="22" height="14" rx="7" fill="#E84C7E"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Chapter 02 — RIGHT: char | node | card -->
+    <div class="chapter right" data-chapter="2">
+      <div class="chapter-card">
+        <div class="ch-label">Chapter 02</div>
+        <h3>The data exists. The bridge doesn't.</h3>
+        <p>Wearables already capture heart rate, HRV, skin conductance, sleep depth. A goldmine of emotional signal — with nowhere to go.</p>
+        <span class="ch-tag orange">The Gap</span>
+      </div>
+      <div class="chapter-node">
+        <div class="node-dot">🤔</div>
+      </div>
+      <div class="chapter-char">
+        <div class="char-bubble">Wearables have data… AI needs it…</div>
+        <!-- Thinking Orange Robot -->
+        <svg width="130" height="168" viewBox="0 0 130 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Thought bubbles -->
+          <circle cx="102" cy="22" r="5" fill="#FF8C42" opacity="0.45"/>
+          <circle cx="114" cy="13" r="7" fill="#FF8C42" opacity="0.3"/>
+          <circle cx="120" cy="5" r="4" fill="#FF8C42" opacity="0.18"/>
+          <line x1="65" y1="12" x2="65" y2="30" stroke="#FF8C42" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="65" cy="8" r="7" fill="#FFCDA0"/>
+          <rect x="28" y="26" width="74" height="64" rx="16" fill="#FF8C42"/>
+          <rect x="38" y="34" width="54" height="48" rx="10" fill="white" opacity="0.92"/>
+          <!-- One eye closed (arc), one squinting -->
+          <path d="M44 52 Q52 47 60 52" stroke="#E07030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="76" cy="52" rx="5.5" ry="5" fill="#FF8C42"/>
+          <ellipse cx="76" cy="53" rx="3" ry="2.5" fill="#180D35"/>
+          <!-- Flat thinking mouth -->
+          <line x1="51" y1="70" x2="77" y2="70" stroke="#E07030" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="20" y="36" width="8" height="14" rx="4" fill="#E07030"/>
+          <rect x="102" y="36" width="8" height="14" rx="4" fill="#E07030"/>
+          <rect x="28" y="92" width="74" height="58" rx="16" fill="#FF8C42"/>
+          <rect x="42" y="102" width="46" height="30" rx="8" fill="white" opacity="0.12"/>
+          <text x="65" y="124" font-size="18" text-anchor="middle">⚙️</text>
+          <rect x="38" y="153" width="22" height="14" rx="7" fill="#E07030"/>
+          <rect x="70" y="153" width="22" height="14" rx="7" fill="#E07030"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Chapter 03 — LEFT: card | node | char -->
+    <div class="chapter" data-chapter="3">
+      <div class="chapter-card">
+        <div class="ch-label">Chapter 03</div>
+        <h3>What if AI could read the room?</h3>
+        <p>What if every AI call included your real-time emotional state? Your stress level. Your energy. Your current mood — before you type a single word.</p>
+        <span class="ch-tag purple">The Insight</span>
+      </div>
+      <div class="chapter-node">
+        <div class="node-dot">✨</div>
+      </div>
+      <div class="chapter-char">
+        <div class="char-bubble">That's the missing piece!</div>
+        <!-- Excited Purple Robot -->
+        <svg width="134" height="168" viewBox="0 0 134 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="10" y="20" font-size="14">✨</text>
+          <text x="107" y="26" font-size="12">⭐</text>
+          <line x1="67" y1="12" x2="67" y2="30" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="67" cy="8" r="7" fill="#C4B5FD"/>
+          <rect x="30" y="26" width="74" height="64" rx="16" fill="#7C3AED"/>
+          <rect x="40" y="34" width="54" height="48" rx="10" fill="white" opacity="0.92"/>
+          <!-- Star eyes -->
+          <text x="52" y="62" font-size="18" text-anchor="middle">⭐</text>
+          <text x="82" y="62" font-size="18" text-anchor="middle">⭐</text>
+          <!-- Huge smile -->
+          <path d="M46 72 Q67 90 88 72" stroke="#7C3AED" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Arms raised up -->
+          <rect x="5" y="22" width="30" height="13" rx="6.5" fill="#6D28D9" transform="rotate(-52 5 22)"/>
+          <circle cx="10" cy="46" r="9" fill="#5B21B6"/>
+          <rect x="99" y="22" width="30" height="13" rx="6.5" fill="#6D28D9" transform="rotate(52 129 22)"/>
+          <circle cx="124" cy="46" r="9" fill="#5B21B6"/>
+          <rect x="30" y="92" width="74" height="58" rx="16" fill="#7C3AED"/>
+          <rect x="44" y="102" width="46" height="30" rx="8" fill="white" opacity="0.14"/>
+          <text x="67" y="124" font-size="18" text-anchor="middle">💡</text>
+          <rect x="40" y="153" width="22" height="14" rx="7" fill="#6D28D9"/>
+          <rect x="72" y="153" width="22" height="14" rx="7" fill="#6D28D9"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Chapter 04 — RIGHT: char | node | card -->
+    <div class="chapter right" data-chapter="4">
+      <div class="chapter-card">
+        <div class="ch-label">Chapter 04</div>
+        <h3>Three steps. One emotional layer.</h3>
+        <p>Read emotional signals → Translate into structured context → Inject into every AI call. Simple API. Massive impact. Zero friction.</p>
+        <span class="ch-tag teal">The Solution</span>
+      </div>
+      <div class="chapter-node">
+        <div class="node-dot">🎯</div>
+      </div>
+      <div class="chapter-char">
+        <div class="char-bubble">Read → Translate → Inject.</div>
+        <!-- Focused Teal Robot -->
+        <svg width="130" height="168" viewBox="0 0 130 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="65" y1="12" x2="65" y2="30" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="65" cy="8" r="7" fill="#99F0E3"/>
+          <rect x="28" y="26" width="74" height="64" rx="16" fill="#00C9A7"/>
+          <rect x="38" y="34" width="54" height="48" rx="10" fill="white" opacity="0.92"/>
+          <!-- Determined focused eyes -->
+          <ellipse cx="52" cy="52" rx="6.5" ry="6.5" fill="#00C9A7"/>
+          <circle cx="52" cy="52" r="3.5" fill="#180D35"/>
+          <circle cx="53" cy="51" r="1.2" fill="white"/>
+          <ellipse cx="78" cy="52" rx="6.5" ry="6.5" fill="#00C9A7"/>
+          <circle cx="78" cy="52" r="3.5" fill="#180D35"/>
+          <circle cx="79" cy="51" r="1.2" fill="white"/>
+          <!-- Determined eyebrows -->
+          <path d="M43 42 Q52 39 61 42" stroke="#009E84" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M69 42 Q78 39 87 42" stroke="#009E84" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Small confident smile -->
+          <path d="M52 69 Q65 76 78 69" stroke="#009E84" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="20" y="36" width="8" height="14" rx="4" fill="#009E84"/>
+          <rect x="102" y="36" width="8" height="14" rx="4" fill="#009E84"/>
+          <rect x="28" y="92" width="74" height="58" rx="16" fill="#00C9A7"/>
+          <rect x="42" y="102" width="46" height="30" rx="8" fill="white" opacity="0.14"/>
+          <circle cx="65" cy="117" r="11" fill="none" stroke="white" stroke-width="2" opacity="0.65"/>
+          <circle cx="65" cy="117" r="5.5" fill="none" stroke="white" stroke-width="2" opacity="0.65"/>
+          <circle cx="65" cy="117" r="2" fill="white" opacity="0.9"/>
+          <rect x="38" y="153" width="22" height="14" rx="7" fill="#009E84"/>
+          <rect x="70" y="153" width="22" height="14" rx="7" fill="#009E84"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Chapter 05 — LEFT: card | node | char -->
+    <div class="chapter" data-chapter="5">
+      <div class="chapter-card">
+        <div class="ch-label">Chapter 05</div>
+        <h3>The future of AI is emotionally aware.</h3>
+        <p>A $13.8B market. Billions of wearable users. Zero middleware bridging them to AI. Until now. Luvient is the emotional OS for the AI era.</p>
+        <span class="ch-tag pink">The Future</span>
+      </div>
+      <div class="chapter-node">
+        <div class="node-dot">🚀</div>
+      </div>
+      <div class="chapter-char">
+        <div class="char-bubble">The $13.8B market nobody's cracked 🎯</div>
+        <!-- Flying Pink Robot with cape -->
+        <svg width="145" height="168" viewBox="0 0 145 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Speed lines -->
+          <line x1="2" y1="90" x2="24" y2="90" stroke="#FF5E8E" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+          <line x1="2" y1="102" x2="18" y2="102" stroke="#FF5E8E" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+          <line x1="2" y1="114" x2="14" y2="114" stroke="#FF5E8E" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+          <!-- Cape left -->
+          <path d="M34 96 C18 112 14 142 34 152 L34 94Z" fill="#FFB3CC" opacity="0.75"/>
+          <!-- Cape right -->
+          <path d="M111 96 C127 112 131 142 111 152 L111 94Z" fill="#FFB3CC" opacity="0.75"/>
+          <line x1="72" y1="12" x2="72" y2="30" stroke="#FF5E8E" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="72" cy="8" r="7" fill="#FFB3CC"/>
+          <rect x="34" y="26" width="76" height="64" rx="16" fill="#FF5E8E"/>
+          <rect x="44" y="34" width="56" height="48" rx="10" fill="white" opacity="0.92"/>
+          <!-- Star eyes triumphant -->
+          <text x="57" y="62" font-size="18" text-anchor="middle">🌟</text>
+          <text x="87" y="62" font-size="18" text-anchor="middle">🌟</text>
+          <!-- Triumphant smile -->
+          <path d="M48 72 Q72 92 96 72" stroke="#E84C7E" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Rosy cheeks -->
+          <ellipse cx="47" cy="68" rx="7" ry="4.5" fill="#FF5E8E" opacity="0.28"/>
+          <ellipse cx="97" cy="68" rx="7" ry="4.5" fill="#FF5E8E" opacity="0.28"/>
+          <rect x="24" y="36" width="10" height="14" rx="5" fill="#E84C7E"/>
+          <rect x="111" y="36" width="10" height="14" rx="5" fill="#E84C7E"/>
+          <rect x="34" y="92" width="76" height="60" rx="16" fill="#FF5E8E"/>
+          <rect x="48" y="102" width="48" height="32" rx="8" fill="white" opacity="0.14"/>
+          <text x="72" y="126" font-size="20" text-anchor="middle">🏆</text>
+          <rect x="44" y="155" width="24" height="13" rx="6.5" fill="#E84C7E"/>
+          <rect x="77" y="155" width="24" height="13" rx="6.5" fill="#E84C7E"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /journey-track -->
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section id="stats">
+  <div class="stats-inner">
+    <span class="section-label reveal" style="display:block;text-align:center">The Opportunity</span>
+    <h2 class="reveal">Numbers that tell the story.</h2>
+    <p class="stats-sub reveal">The emotional computing market is exploding — and nobody has built the bridge yet.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card reveal">
+        <div class="stat-number pink">$13.8B</div>
+        <div class="stat-label">Affective Computing Market</div>
+        <div class="stat-note">Projected by 2032, growing at 22.7% CAGR</div>
+      </div>
+      <div class="stat-card reveal" style="transition-delay:0.1s">
+        <div class="stat-number purple">1B+</div>
+        <div class="stat-label">Wearable Devices</div>
+        <div class="stat-note">Collecting biometric and emotional signals right now</div>
+      </div>
+      <div class="stat-card reveal" style="transition-delay:0.2s">
+        <div class="stat-number orange">0</div>
+        <div class="stat-label">Middleware APIs Today</div>
+        <div class="stat-note">Zero products bridging wearable emotion data to AI</div>
+      </div>
+      <div class="stat-card reveal" style="transition-delay:0.3s">
+        <div class="stat-number teal">Day 1</div>
+        <div class="stat-label">We're Just Getting Started</div>
+        <div class="stat-note">Join the waitlist. Shape what this becomes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DEMO ═══ -->
+<section id="demo">
+  <div class="demo-inner">
+    <span class="section-label reveal" style="display:block">Live Demo</span>
+    <h2 class="reveal">Try It Now</h2>
+    <p class="demo-sub reveal">See emotional AI in action. Click to load the interactive Luvient demo and experience emotionally-aware AI for yourself.</p>
+
+    <div class="demo-container reveal" id="demoContainer">
+      <div class="demo-overlay" onclick="activateDemo()">
+        <div class="play-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="overlay-text">Launch Interactive Demo</div>
+        <div class="overlay-sub">Click to activate — luvient.com/demo.html</div>
+      </div>
+      <iframe id="demoFrame" src="about:blank" title="Luvient Demo" allow="microphone; camera"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="cta">
+  <div class="cta-inner">
+    <h2 class="reveal">Be first.<br>Shape what's next.</h2>
+    <p class="cta-sub reveal">Join hundreds of early adopters helping define the future of emotionally intelligent AI. Early access. Real influence. Day one.</p>
+
+    <div id="waitlistBottom" class="waitlist-form-white reveal">
+      <input type="email" id="ctaEmail" placeholder="your@email.com" autocomplete="email">
+      <button class="btn-waitlist-white" onclick="joinWaitlist('ctaEmail','waitlistBottom')">Join the Waitlist</button>
+    </div>
+    <p class="cta-note reveal">No spam. Unsubscribe any time. We ship what we promise.</p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
 <footer>
-  <div class="logo">Luvient</div>
-  <div class="footer-links">
-    <a href="#">About</a>
-    <a href="#">API Docs</a>
-    <a href="/feedback.html">Feedback</a>
-    <a href="#">Privacy</a>
-    <a href="mailto:hello@luvient.com">Contact</a>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="/" class="logo">Lu<span>vient</span></a>
+        <p class="footer-tagline">The emotional intelligence layer for every AI application.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#">About</a>
+          <a href="#">API Docs</a>
+          <a href="#demo">Demo</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="feedback.html">Feedback</a>
+          <a href="#">Privacy</a>
+          <a href="mailto:hello@luvient.com">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <a href="mailto:hello@luvient.com">hello@luvient.com</a>
+          <a href="https://luvient.com" target="_blank" rel="noopener">luvient.com</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Luvient. All rights reserved.</p>
+      <p class="footer-love">Made with <span>♥</span> for emotionally intelligent AI</p>
+    </div>
   </div>
-  <p class="footer-copy">© 2026 Luvient. All rights reserved.</p>
 </footer>
 
+<!-- ═══ SCRIPTS ═══ -->
 <script>
-  // Custom cursor (desktop only)
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+/* Nav scroll shadow */
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
 
-  if (!isTouch) {
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top = my + 'px';
-    });
-    (function animateRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top = ry + 'px';
-      requestAnimationFrame(animateRing);
-    })();
-    document.querySelectorAll('button, a, input').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
-        ring.style.width = '50px'; ring.style.height = '50px';
-      });
-      el.addEventListener('mouseleave', () => {
-        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
-        ring.style.width = '36px'; ring.style.height = '36px';
-      });
-    });
-  } else {
-    cursor.style.display = 'none';
-    ring.style.display = 'none';
-    document.body.style.cursor = 'auto';
+/* IntersectionObserver for .reveal and .chapter */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal, .chapter').forEach(el => observer.observe(el));
+
+/* Mailchimp waitlist */
+function joinWaitlist(inputId, formId) {
+  const emailEl = document.getElementById(inputId);
+  const email = emailEl.value.trim();
+  if (!email || !email.includes('@')) {
+    emailEl.style.borderColor = 'rgba(255,94,142,0.7)';
+    setTimeout(() => emailEl.style.borderColor = '', 1500);
+    return;
   }
-
-  // Navbar scroll
-  window.addEventListener('scroll', () => {
-    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  const btn = emailEl.nextElementSibling;
+  const origText = btn.textContent;
+  btn.textContent = 'Submitting\u2026';
+  btn.disabled = true;
+  const body = new URLSearchParams({
+    u: '31cc51af0db54d203023805c1',
+    id: '49ececac75',
+    EMAIL: email
   });
+  fetch('https://getsenti.us1.list-manage.com/subscribe/post', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  })
+  .then(() => {
+    document.getElementById('waitlistHero')?.style.setProperty('display', 'none');
+    document.getElementById('waitlistBottom')?.style.setProperty('display', 'none');
+    document.getElementById('successMsg').style.display = 'block';
+    const heroNote = document.getElementById('heroNote');
+    if (heroNote) heroNote.textContent = '\u2713 You\'re on the list!';
+  })
+  .catch(() => {
+    btn.textContent = origText;
+    btn.disabled = false;
+  });
+}
 
-  // Scroll reveal
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // Demo
-  function activateDemo() {
-    document.getElementById('demoFrame').src = 'https://luvient.com/demo.html';
-    document.getElementById('demoContainer').classList.add('active');
-  }
-
-  // Waitlist — Mailchimp
-  function joinWaitlist(inputId) {
-    const emailEl = document.getElementById(inputId);
-    const email = emailEl.value.trim();
-    if (!email || !email.includes('@')) {
-      emailEl.style.borderColor = 'rgba(255,45,120,0.6)';
-      emailEl.style.boxShadow = '0 0 0 4px rgba(255,45,120,0.1)';
-      setTimeout(() => { emailEl.style.borderColor = ''; emailEl.style.boxShadow = ''; }, 1500);
-      return;
-    }
-    const btn = emailEl.nextElementSibling;
-    btn.textContent = 'Submitting…';
-    btn.disabled = true;
-
-    const body = new URLSearchParams({
-      u: '31cc51af0db54d203023805c1',
-      id: '49ececac75',
-      EMAIL: email
-    });
-
-    fetch('https://getsenti.us1.list-manage.com/subscribe/post', {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString()
-    })
-    .then(() => {
-      document.getElementById('waitlistHero').style.display = 'none';
-      document.getElementById('waitlistBottom').style.display = 'none';
-      document.getElementById('successMsg').style.display = 'block';
-      document.getElementById('heroNote').textContent = '✓ You\'re on the list!';
-    })
-    .catch(() => {
-      btn.textContent = inputId === 'emailHero' ? 'Get Early Access' : 'Join the Waitlist';
-      btn.disabled = false;
-      emailEl.style.borderColor = 'rgba(255,45,120,0.6)';
-      setTimeout(() => { emailEl.style.borderColor = ''; }, 2500);
-    });
-  }
-
-  function scrollToWaitlist() {
-    document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
-  }
+/* Demo activation */
+function activateDemo() {
+  const container = document.getElementById('demoContainer');
+  const frame = document.getElementById('demoFrame');
+  frame.src = 'https://luvient.com/demo.html';
+  container.classList.add('active');
+}
 </script>
 </body>
 </html>
