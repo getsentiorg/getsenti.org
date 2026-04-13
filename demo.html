@@ -1,926 +1,1040 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>getSenti — Live Prototype</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luvient — Live Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #060910;
-    --surface: #0d1424;
-    --surface2: #111827;
-    --border: rgba(255,255,255,0.06);
-    --accent: #7DF9C2;
-    --accent2: #4FC3F7;
-    --warn: #FFB347;
-    --danger: #FF6B6B;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-  }
+    :root {
+      --bg: #FAFAF9;
+      --white: #FFFFFF;
+      --surface: #F5F3F0;
+      --surface2: #FFFFFF;
+      --border: #E8E3F0;
+      --accent: #5B21B6;
+      --accent-soft: #F3EEFF;
+      --text: #0A0814;
+      --muted: #7C7391;
+      --danger: #DC2626;
+      --warn: #D97706;
+      --success: #059669;
+      --font-display: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-  html, body { height: 100%; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-weight: 300;
-    overflow-x: hidden;
-  }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(91,33,182,0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: linear-gradient(rgba(125,249,194,0.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(125,249,194,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+    /* ── Header ── */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 60px;
+      background: rgba(250,250,249,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
 
-  /* HEADER */
-  header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    padding: 16px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(6,9,16,0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-  }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
 
-  .logo {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 20px;
-    letter-spacing: -0.5px;
-  }
-  .logo span { color: var(--accent); text-shadow: 0 0 16px rgba(125,249,194,0.5); }
+    .logo span { color: var(--accent); }
 
-  .header-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent);
-    background: rgba(125,249,194,0.08);
-    border: 1px solid rgba(125,249,194,0.2);
-    padding: 6px 14px;
-    border-radius: 100px;
-  }
-  .live-dot {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-    box-shadow: 0 0 6px var(--accent);
-  }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-  .api-setup {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .api-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text);
-    width: 280px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .api-input:focus { border-color: rgba(125,249,194,0.3); }
-  .api-btn {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .api-btn:hover { box-shadow: 0 0 20px rgba(125,249,194,0.3); transform: translateY(-1px); }
-  .api-status { font-size: 11px; font-family: var(--font-mono); }
-  .api-status.connected { color: var(--accent); }
-  .api-status.disconnected { color: var(--muted); }
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(91,33,182,0.08);
+      border: 1px solid rgba(91,33,182,0.2);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
 
-  /* MAIN LAYOUT */
-  .main {
-    padding-top: 70px;
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 0;
-    position: relative;
-    z-index: 1;
-  }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
 
-  /* STATE PANEL */
-  .state-panel {
-    grid-row: 1 / 3;
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-    padding: 28px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    overflow-y: auto;
-  }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
 
-  .panel-title {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-  /* STATE VISUAL */
-  .state-visual {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 24px 0;
-  }
+    .api-status {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      transition: color 0.3s;
+    }
 
-  .state-orb {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.5s ease;
-  }
-  .state-orb::before {
-    content: '';
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 1px solid rgba(125,249,194,0.15);
-    animation: orbPulse 3s ease infinite;
-  }
-  .state-orb::after {
-    content: '';
-    position: absolute;
-    inset: -16px;
-    border-radius: 50%;
-    border: 1px solid rgba(125,249,194,0.07);
-    animation: orbPulse 3s ease infinite 0.5s;
-  }
-  @keyframes orbPulse {
-    0%,100% { transform: scale(1); opacity: 0.6; }
-    50% { transform: scale(1.08); opacity: 0.3; }
-  }
+    .api-status.connected {
+      color: var(--accent);
+    }
 
-  .state-emoji { font-size: 42px; z-index: 1; }
+    /* ── Main Layout ── */
+    .main {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
-  .state-name {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 18px;
-    letter-spacing: -0.3px;
-    text-align: center;
-  }
+    /* ── State Panel ── */
+    .state-panel {
+      width: 340px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px 20px;
+      gap: 24px;
+    }
 
-  .state-desc {
-    font-size: 13px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.5;
-    max-width: 220px;
-  }
+    .state-panel::-webkit-scrollbar { width: 4px; }
+    .state-panel::-webkit-scrollbar-track { background: transparent; }
+    .state-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* SLIDERS */
-  .sliders { display: flex; flex-direction: column; gap: 20px; }
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-  .slider-group { display: flex; flex-direction: column; gap: 10px; }
+    /* Orb */
+    .orb-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 0 10px;
+    }
 
-  .slider-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .state-orb {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
 
-  .slider-label {
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .slider-icon { font-size: 16px; }
+    .state-orb::before,
+    .state-orb::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      border-style: solid;
+      animation: orbRing 4s linear infinite;
+    }
 
-  .slider-value {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--accent);
-    background: rgba(125,249,194,0.08);
-    padding: 3px 10px;
-    border-radius: 100px;
-    border: 1px solid rgba(125,249,194,0.15);
-    min-width: 48px;
-    text-align: center;
-  }
+    .state-orb::before {
+      inset: -14px;
+      border-width: 1px;
+      border-color: rgba(91,33,182,0.15);
+      animation-duration: 8s;
+    }
 
-  .slider-track {
-    position: relative;
-    height: 6px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 100px;
-    overflow: hidden;
-  }
-  .slider-fill {
-    height: 100%;
-    border-radius: 100px;
-    transition: width 0.3s ease;
-  }
+    .state-orb::after {
+      inset: -26px;
+      border-width: 1px;
+      border-color: rgba(91,33,182,0.07);
+      animation-duration: 14s;
+      animation-direction: reverse;
+    }
 
-  input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    background: transparent;
-    outline: none;
-    position: absolute;
-    top: 0; left: 0;
-    cursor: pointer;
-    margin: 0;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 8px rgba(0,0,0,0.4);
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    @keyframes orbRing {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
 
-  /* CONTEXT OUTPUT */
-  .context-box {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-  }
+    .orb-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7C3AED, #5B21B6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 30px rgba(91,33,182,0.25), 0 0 60px rgba(91,33,182,0.1);
+      transition: background 0.8s ease;
+    }
 
-  .context-json {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    line-height: 1.8;
-    color: var(--muted);
-  }
-  .context-json .key { color: var(--accent2); }
-  .context-json .val-high { color: var(--danger); }
-  .context-json .val-mid { color: var(--warn); }
-  .context-json .val-low { color: var(--accent); }
-  .context-json .val-str { color: #c4b5fd; }
+    .state-label {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+    }
 
-  /* CHAT AREA */
-  .chat-area {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 70px);
-  }
+    /* Sliders */
+    .sliders-section {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
-  .chat-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    .slider-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-  .chat-header-left { display: flex; flex-direction: column; gap: 4px; }
+    .slider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .chat-title {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: -0.3px;
-  }
+    .slider-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-  .chat-subtitle { font-size: 12px; color: var(--muted); }
+    .slider-label span { font-size: 13px; }
 
-  .context-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(125,249,194,0.06);
-    border: 1px solid rgba(125,249,194,0.15);
-    border-radius: 100px;
-    padding: 8px 16px;
-    font-size: 12px;
-    color: var(--accent);
-    font-family: var(--font-mono);
-    transition: all 0.3s;
-  }
+    .slider-value {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid rgba(91,33,182,0.15);
+      padding: 2px 8px;
+      border-radius: 6px;
+      min-width: 42px;
+      text-align: center;
+    }
 
-  /* MESSAGES */
-  .messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
+    .slider-track {
+      position: relative;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(91,33,182,0.06);
+      overflow: visible;
+    }
 
-  .message {
-    display: flex;
-    gap: 14px;
-    animation: msgIn 0.4s ease both;
-    max-width: 80%;
-  }
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    .slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.15s ease;
+      pointer-events: none;
+    }
 
-  .message.user { align-self: flex-end; flex-direction: row-reverse; }
-  .message.assistant { align-self: flex-start; }
+    .slider-fill.stress  { background: linear-gradient(90deg, #A78BFA, #DC2626); }
+    .slider-fill.focus   { background: linear-gradient(90deg, #7C3AED, #5B21B6); }
+    .slider-fill.energy  { background: linear-gradient(90deg, #D97706, #5B21B6); }
+    .slider-fill.heartrate { background: linear-gradient(90deg, #DC2626, #D97706); }
 
-  .msg-avatar {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .message.user .msg-avatar {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-  }
-  .message.assistant .msg-avatar {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-  }
+    input[type=range] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      z-index: 2;
+    }
 
-  .msg-content {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--white);
+      box-shadow: 0 2px 8px rgba(91,33,182,0.3);
+    }
 
-  .msg-bubble {
-    padding: 14px 18px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.7;
-    position: relative;
-  }
-  .message.user .msg-bubble {
-    background: linear-gradient(135deg, rgba(125,249,194,0.15), rgba(79,195,247,0.15));
-    border: 1px solid rgba(125,249,194,0.2);
-    border-top-right-radius: 4px;
-  }
-  .message.assistant .msg-bubble {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-top-left-radius: 4px;
-  }
+    /* Context JSON */
+    .context-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
 
-  .msg-context-tag {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .message.user .msg-context-tag { justify-content: flex-end; }
+    .context-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
 
-  .context-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(125,249,194,0.06);
-    border: 1px solid rgba(125,249,194,0.12);
-    border-radius: 100px;
-    padding: 2px 8px;
-    font-size: 10px;
-    color: var(--accent);
-  }
+    .context-json {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.7;
+      white-space: pre;
+    }
 
-  /* TYPING INDICATOR */
-  .typing {
-    display: flex;
-    gap: 5px;
-    padding: 14px 18px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    border-top-left-radius: 4px;
-    width: fit-content;
-  }
-  .typing span {
-    width: 6px; height: 6px;
-    background: var(--muted);
-    border-radius: 50%;
-    animation: typing 1.2s infinite;
-  }
-  .typing span:nth-child(2) { animation-delay: 0.2s; }
-  .typing span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes typing {
-    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
+    .context-json .key   { color: var(--accent); }
+    .context-json .val-str  { color: #7C3AED; }
+    .context-json .val-high { color: var(--danger); }
+    .context-json .val-mid  { color: var(--warn); }
+    .context-json .val-low  { color: var(--success); }
+    .context-json .bracket  { color: var(--muted); }
 
-  /* INPUT */
-  .chat-input-area {
-    padding: 20px 28px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-  }
+    /* ── Chat Area ── */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      overflow: hidden;
+    }
 
-  .chat-input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 18px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    resize: none;
-    min-height: 52px;
-    max-height: 140px;
-    transition: border-color 0.2s;
-    line-height: 1.5;
-  }
-  .chat-input:focus { border-color: rgba(125,249,194,0.3); }
-  .chat-input::placeholder { color: var(--muted); }
+    .chat-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
 
-  .send-btn {
-    width: 52px; height: 52px;
-    background: var(--accent);
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(125,249,194,0.3); }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .send-btn svg { width: 20px; height: 20px; fill: var(--bg); }
+    .chat-header-left { display: flex; flex-direction: column; gap: 2px; }
 
-  /* EMPTY STATE */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    color: var(--muted);
-    padding: 40px;
-    text-align: center;
-  }
-  .empty-icon { font-size: 48px; opacity: 0.4; }
-  .empty-title {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    opacity: 0.4;
-  }
-  .empty-sub { font-size: 14px; max-width: 320px; line-height: 1.6; }
+    .chat-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
 
-  .suggestion-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 8px;
-  }
-  .chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 8px 16px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text);
-  }
-  .chip:hover { border-color: rgba(125,249,194,0.3); color: var(--accent); }
+    .chat-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-  /* NO API WARNING */
-  .no-api-banner {
-    background: rgba(255,107,107,0.08);
-    border: 1px solid rgba(255,107,107,0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    font-size: 13px;
-    color: #ff9999;
-    text-align: center;
-    margin: 16px 28px 0;
-    display: none;
-  }
+    .context-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 12px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(91,33,182,0.2);
+      border-radius: 20px;
+      color: var(--accent);
+    }
 
-  @media (max-width: 768px) {
-    .main { grid-template-columns: 1fr; }
-    .state-panel { grid-row: auto; border-right: none; border-bottom: 1px solid var(--border); }
-    .api-input { width: 180px; }
-  }
-</style>
+    /* Messages */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 8px; }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      opacity: 0.5;
+    }
+
+    .empty-sub {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    /* Message bubbles */
+    .message {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: msgIn 0.25s ease;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .message.user .msg-avatar {
+      background: linear-gradient(135deg, #7C3AED, #5B21B6);
+    }
+
+    .message.assistant .msg-avatar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+
+    .msg-content { display: flex; flex-direction: column; gap: 4px; max-width: 72%; }
+
+    .message.user .msg-content { align-items: flex-end; }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px solid transparent;
+    }
+
+    .message.user .msg-bubble {
+      background: var(--accent-soft);
+      border-color: rgba(91,33,182,0.2);
+      border-top-right-radius: 4px;
+      color: var(--text);
+    }
+
+    .message.assistant .msg-bubble {
+      background: var(--surface);
+      border-color: var(--border);
+      border-top-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    .context-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(91,33,182,0.12);
+      border-radius: 8px;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    /* Typing indicator */
+    .typing-bubble {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-top-left-radius: 4px;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: typingDot 1.2s infinite;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingDot {
+      0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
+      40% { transform: scale(1.3); opacity: 1; }
+    }
+
+    /* Input area */
+    .input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      background: var(--white);
+    }
+
+    .no-api-banner {
+      background: rgba(220,38,38,0.06);
+      border: 1px solid rgba(220,38,38,0.2);
+      color: #DC2626;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 5px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      color: var(--text);
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+
+    .chip:hover {
+      border-color: rgba(91,33,182,0.3);
+      color: var(--accent);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      resize: none;
+      min-height: 48px;
+      max-height: 120px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.5;
+    }
+
+    .chat-input::placeholder { color: var(--muted); }
+
+    .chat-input:focus {
+      border-color: rgba(91,33,182,0.4);
+    }
+
+    .send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .send-btn:hover {
+      box-shadow: 0 8px 24px rgba(91,33,182,0.3);
+      transform: translateY(-1px);
+    }
+
+    .send-btn:active { transform: translateY(0); }
+
+    .send-btn svg { fill: white; }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">get<span>Senti</span> <span style="font-size:12px;color:var(--muted);font-family:var(--font-mono);font-weight:400;">prototype v0.1</span></div>
-  <div class="api-setup">
-    <span class="api-status connected" id="apiStatus">⬤ Connected to getSenti API</span>
-  </div>
-  <div class="header-badge">
-    <div class="live-dot"></div>
-    LIVE DEMO
-  </div>
-</header>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">Lu<span>vient</span></div>
 
-<div class="main">
-
-  <!-- STATE PANEL -->
-  <div class="state-panel">
-
-    <div>
-      <div class="panel-title">// emotional state</div>
-      <div class="state-visual">
-        <div class="state-orb" id="stateOrb" style="background: radial-gradient(circle, rgba(125,249,194,0.2) 0%, transparent 70%);">
-          <div class="state-emoji" id="stateEmoji">😐</div>
-        </div>
-        <div class="state-name" id="stateName">Neutral</div>
-        <div class="state-desc" id="stateDesc">Your emotional state is balanced. AI will respond normally.</div>
+    <div class="header-center">
+      <div class="header-badge">
+        <div class="live-dot"></div>
+        LIVE DEMO
       </div>
     </div>
 
-    <div class="sliders">
-      <div class="panel-title">// biometric input</div>
-
-      <!-- Stress -->
-      <div class="slider-group">
-        <div class="slider-header">
-          <div class="slider-label"><span class="slider-icon">😰</span> Stress Level</div>
-          <div class="slider-value" id="stressVal">50%</div>
-        </div>
-        <div class="slider-track">
-          <div class="slider-fill" id="stressFill" style="width:50%; background: linear-gradient(90deg, #7DF9C2, #FF6B6B);"></div>
-          <input type="range" min="0" max="100" value="50" id="stressSlider" oninput="updateState()">
-        </div>
-      </div>
-
-      <!-- Focus -->
-      <div class="slider-group">
-        <div class="slider-header">
-          <div class="slider-label"><span class="slider-icon">🎯</span> Focus Level</div>
-          <div class="slider-value" id="focusVal">50%</div>
-        </div>
-        <div class="slider-track">
-          <div class="slider-fill" id="focusFill" style="width:50%; background: linear-gradient(90deg, #4FC3F7, #7DF9C2);"></div>
-          <input type="range" min="0" max="100" value="50" id="focusSlider" oninput="updateState()">
-        </div>
-      </div>
-
-      <!-- Energy -->
-      <div class="slider-group">
-        <div class="slider-header">
-          <div class="slider-label"><span class="slider-icon">⚡</span> Energy Level</div>
-          <div class="slider-value" id="energyVal">50%</div>
-        </div>
-        <div class="slider-track">
-          <div class="slider-fill" id="energyFill" style="width:50%; background: linear-gradient(90deg, #FFB347, #7DF9C2);"></div>
-          <input type="range" min="0" max="100" value="50" id="energySlider" oninput="updateState()">
-        </div>
-      </div>
-
-      <!-- Heart Rate -->
-      <div class="slider-group">
-        <div class="slider-header">
-          <div class="slider-label"><span class="slider-icon">❤️</span> Heart Rate</div>
-          <div class="slider-value" id="hrVal">72 BPM</div>
-        </div>
-        <div class="slider-track">
-          <div class="slider-fill" id="hrFill" style="width:37%; background: linear-gradient(90deg, #FF6B6B, #FFB347);"></div>
-          <input type="range" min="50" max="160" value="72" id="hrSlider" oninput="updateState()">
-        </div>
-      </div>
+    <div class="header-right">
+      <div class="api-status" id="apiStatus">○ Checking API…</div>
     </div>
+  </header>
 
-    <!-- Context JSON -->
-    <div>
-      <div class="panel-title" style="margin-bottom:10px;">// senti context object</div>
+  <!-- Main -->
+  <div class="main">
+
+    <!-- State Panel -->
+    <aside class="state-panel">
+
+      <div class="panel-title">Emotional State</div>
+
+      <!-- Orb -->
+      <div class="orb-section">
+        <div class="state-orb">
+          <div class="orb-inner" id="orbInner">😊</div>
+        </div>
+        <div class="state-label" id="stateLabel">Balanced</div>
+      </div>
+
+      <!-- Sliders -->
+      <div class="sliders-section">
+        <div class="panel-title">Biometric Inputs</div>
+
+        <!-- Stress -->
+        <div class="slider-item">
+          <div class="slider-header">
+            <div class="slider-label"><span>😰</span> Stress</div>
+            <div class="slider-value" id="stressVal">35</div>
+          </div>
+          <div class="slider-track">
+            <div class="slider-fill stress" id="stressFill" style="width:35%"></div>
+            <input type="range" min="0" max="100" value="35" id="stressSlider"
+              oninput="updateState('stress', this.value)">
+          </div>
+        </div>
+
+        <!-- Focus -->
+        <div class="slider-item">
+          <div class="slider-header">
+            <div class="slider-label"><span>🎯</span> Focus</div>
+            <div class="slider-value" id="focusVal">70</div>
+          </div>
+          <div class="slider-track">
+            <div class="slider-fill focus" id="focusFill" style="width:70%"></div>
+            <input type="range" min="0" max="100" value="70" id="focusSlider"
+              oninput="updateState('focus', this.value)">
+          </div>
+        </div>
+
+        <!-- Energy -->
+        <div class="slider-item">
+          <div class="slider-header">
+            <div class="slider-label"><span>⚡</span> Energy</div>
+            <div class="slider-value" id="energyVal">60</div>
+          </div>
+          <div class="slider-track">
+            <div class="slider-fill energy" id="energyFill" style="width:60%"></div>
+            <input type="range" min="0" max="100" value="60" id="energySlider"
+              oninput="updateState('energy', this.value)">
+          </div>
+        </div>
+
+        <!-- Heart Rate -->
+        <div class="slider-item">
+          <div class="slider-header">
+            <div class="slider-label"><span>❤️</span> Heart Rate</div>
+            <div class="slider-value" id="hrVal">72 bpm</div>
+          </div>
+          <div class="slider-track">
+            <div class="slider-fill heartrate" id="hrFill" style="width:38%"></div>
+            <input type="range" min="40" max="160" value="72" id="hrSlider"
+              oninput="updateState('heartrate', this.value)">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Context JSON -->
       <div class="context-box">
+        <div class="context-box-header">
+          <div class="panel-title">Context Payload</div>
+        </div>
         <div class="context-json" id="contextJson"></div>
       </div>
-    </div>
 
-  </div>
+    </aside>
 
-  <!-- CHAT AREA -->
-  <div class="chat-area">
-    <div class="chat-header">
-      <div class="chat-header-left">
-        <div class="chat-title">getSenti AI Chat</div>
-        <div class="chat-subtitle">AI responses adapt to your emotional state in real time</div>
+    <!-- Chat Area -->
+    <section class="chat-area">
+
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-title">Luvient AI Demo</div>
+          <div class="chat-subtitle">AI adapts in real time to your emotional state</div>
+        </div>
+        <div class="context-pill" id="contextPill">context: balanced</div>
       </div>
-      <div class="context-pill" id="contextPill">
-        <div class="live-dot"></div>
-        <span id="contextPillText">State: Neutral · HR: 72bpm</span>
-      </div>
-    </div>
 
-    <div id="noapiBanner" class="no-api-banner">
-      ⚠️ Connect your Anthropic API key above to start chatting with emotionally-aware AI
-    </div>
-
-    <div class="messages" id="messages">
-      <div class="empty-state" id="emptyState">
-        <div class="empty-icon">🧠</div>
-        <div class="empty-title">Emotional Context Ready</div>
-        <div class="empty-sub">Adjust your emotional state on the left, then send a message. Watch how the AI responds differently based on how you feel.</div>
-        <div class="suggestion-chips">
-          <div class="chip" onclick="sendSuggestion(this)">Help me focus on my work</div>
-          <div class="chip" onclick="sendSuggestion(this)">I need to make a decision</div>
-          <div class="chip" onclick="sendSuggestion(this)">Give me a motivational message</div>
-          <div class="chip" onclick="sendSuggestion(this)">Help me calm down</div>
+      <div class="messages" id="messages">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🧠</div>
+          <div class="empty-title">Emotional Context Ready</div>
+          <div class="empty-sub">Adjust the sliders to set your emotional state, then start chatting. The AI will adapt its tone and response style in real time.</div>
         </div>
       </div>
-    </div>
 
-    <div class="chat-input-area">
-      <textarea class="chat-input" id="chatInput" placeholder="Type a message... (AI will respond based on your emotional state)" rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
-        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/></svg>
-      </button>
-    </div>
+      <div class="input-area">
+        <div class="no-api-banner" id="noApiBanner">
+          ⚠ Could not reach Luvient API. Responses may be unavailable.
+        </div>
+
+        <div class="chips">
+          <div class="chip" onclick="sendSuggestion('How are you reading my state right now?')">How are you reading my state?</div>
+          <div class="chip" onclick="sendSuggestion('I feel overwhelmed — help me calm down.')">I feel overwhelmed</div>
+          <div class="chip" onclick="sendSuggestion('Give me a quick motivational boost.')">Motivate me</div>
+          <div class="chip" onclick="sendSuggestion('What should I focus on right now?')">What to focus on?</div>
+        </div>
+
+        <div class="input-row">
+          <textarea class="chat-input" id="chatInput" rows="1"
+            placeholder="Type a message…"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </section>
   </div>
 
-</div>
+  <script>
+    const API_BASE = 'https://getsenti-backend.onrender.com';
 
-<script>
-  // ── STATE ──
-  let apiKey = '';
-  let isConnected = false;
-  let isLoading = false;
-  let conversationHistory = [];
+    let state = { stress: 35, focus: 70, energy: 60, heartrate: 72 };
+    let apiOnline = false;
 
-  // ── API CONNECTION ──
-  const BACKEND_URL = 'https://getsenti-backend.onrender.com'; // Replace after deploying to Render
-  isConnected = true;
+    // ── State helpers ──────────────────────────────────────────────
+    function updateState(metric, value) {
+      state[metric] = parseInt(value);
 
-  // ── EMOTIONAL STATE ──
-  function getEmotionalState() {
-    const stress = parseInt(document.getElementById('stressSlider').value);
-    const focus = parseInt(document.getElementById('focusSlider').value);
-    const energy = parseInt(document.getElementById('energySlider').value);
-    const hr = parseInt(document.getElementById('hrSlider').value);
-
-    let state = 'Neutral';
-    let emoji = '😐';
-    let desc = 'Your emotional state is balanced.';
-    let orbColor = 'rgba(125,249,194,0.2)';
-
-    if (stress > 70) {
-      state = 'Stressed'; emoji = '😰';
-      desc = 'High stress detected. AI will be calm, supportive and concise.';
-      orbColor = 'rgba(255,107,107,0.25)';
-    } else if (stress > 50 && energy < 40) {
-      state = 'Burnt Out'; emoji = '😩';
-      desc = 'Low energy and elevated stress. AI will be gentle and brief.';
-      orbColor = 'rgba(255,179,71,0.2)';
-    } else if (focus > 70 && stress < 40) {
-      state = 'In The Zone'; emoji = '🎯';
-      desc = 'High focus, low stress. AI will be direct and efficient.';
-      orbColor = 'rgba(79,195,247,0.25)';
-    } else if (energy > 70 && stress < 40) {
-      state = 'Energized'; emoji = '⚡';
-      desc = 'High energy detected. AI will match your enthusiasm.';
-      orbColor = 'rgba(125,249,194,0.3)';
-    } else if (energy < 30 && focus < 30) {
-      state = 'Exhausted'; emoji = '😴';
-      desc = 'Low energy and focus. AI will keep things simple and short.';
-      orbColor = 'rgba(100,116,139,0.3)';
-    } else if (hr > 100) {
-      state = 'Anxious'; emoji = '😟';
-      desc = 'Elevated heart rate. AI will be reassuring and grounding.';
-      orbColor = 'rgba(255,107,107,0.15)';
-    } else if (focus > 60 && energy > 60) {
-      state = 'Focused'; emoji = '💡';
-      desc = 'Good focus and energy. AI will be productive and clear.';
-      orbColor = 'rgba(125,249,194,0.2)';
-    }
-
-    return { stress, focus, energy, hr, state, emoji, desc, orbColor };
-  }
-
-  function updateState() {
-    const s = getEmotionalState();
-
-    // Update values
-    document.getElementById('stressVal').textContent = s.stress + '%';
-    document.getElementById('focusVal').textContent = s.focus + '%';
-    document.getElementById('energyVal').textContent = s.energy + '%';
-    document.getElementById('hrVal').textContent = s.hr + ' BPM';
-
-    // Update fills
-    document.getElementById('stressFill').style.width = s.stress + '%';
-    document.getElementById('focusFill').style.width = s.focus + '%';
-    document.getElementById('energyFill').style.width = s.energy + '%';
-    document.getElementById('hrFill').style.width = ((s.hr - 50) / 110 * 100) + '%';
-
-    // Update orb
-    document.getElementById('stateOrb').style.background = `radial-gradient(circle, ${s.orbColor} 0%, transparent 70%)`;
-    document.getElementById('stateEmoji').textContent = s.emoji;
-    document.getElementById('stateName').textContent = s.state;
-    document.getElementById('stateDesc').textContent = s.desc;
-
-    // Update context pill
-    document.getElementById('contextPillText').textContent = `State: ${s.state} · HR: ${s.hr}bpm`;
-
-    // Update JSON
-    updateContextJSON(s);
-  }
-
-  function updateContextJSON(s) {
-    const level = v => v > 66 ? 'val-high' : v > 33 ? 'val-mid' : 'val-low';
-    document.getElementById('contextJson').innerHTML = `
-<span class="key">{</span>
-  <span class="key">"state"</span>: <span class="val-str">"${s.state}"</span>,
-  <span class="key">"stress"</span>: <span class="${level(s.stress)}">${s.stress}</span>,
-  <span class="key">"focus"</span>: <span class="${level(s.focus)}">${s.focus}</span>,
-  <span class="key">"energy"</span>: <span class="${level(s.energy)}">${s.energy}</span>,
-  <span class="key">"heart_rate"</span>: <span class="${s.hr > 100 ? 'val-high' : s.hr > 80 ? 'val-mid' : 'val-low'}">${s.hr}</span>,
-  <span class="key">"timestamp"</span>: <span class="val-str">"${new Date().toISOString()}"</span>
-<span class="key">}</span>`;
-  }
-
-  // ── BUILD SYSTEM PROMPT ──
-  function buildSystemPrompt(s) {
-    return `You are getSenti AI — an emotionally intelligent assistant that adapts its communication style based on the user's real-time biometric and emotional state data.
-
-CURRENT USER STATE (from getSenti API):
-- Emotional State: ${s.state}
-- Stress Level: ${s.stress}/100 ${s.stress > 70 ? '(HIGH)' : s.stress > 40 ? '(MODERATE)' : '(LOW)'}
-- Focus Level: ${s.focus}/100 ${s.focus > 70 ? '(HIGH)' : s.focus > 40 ? '(MODERATE)' : '(LOW)'}
-- Energy Level: ${s.energy}/100 ${s.energy > 70 ? '(HIGH)' : s.energy > 40 ? '(MODERATE)' : '(LOW)'}
-- Heart Rate: ${s.hr} BPM ${s.hr > 100 ? '(ELEVATED)' : s.hr > 80 ? '(NORMAL-HIGH)' : '(CALM)'}
-
-ADAPTATION RULES:
-${s.stress > 70 ? '- User is STRESSED: Be calm, warm, and concise. Break things into small steps. Avoid overwhelming information. Lead with reassurance.' : ''}
-${s.state === 'Burnt Out' ? '- User is BURNT OUT: Be very brief. Show empathy first. Suggest breaks. No long lists.' : ''}
-${s.state === 'In The Zone' ? '- User is IN THE ZONE: Be direct and efficient. No fluff. Give information densely. Respect their focus.' : ''}
-${s.state === 'Energized' ? '- User is ENERGIZED: Match their energy. Be enthusiastic. Bold ideas welcome. They can handle complexity.' : ''}
-${s.state === 'Exhausted' ? '- User is EXHAUSTED: Keep responses very short. Simple language. One thing at a time. Be gentle.' : ''}
-${s.state === 'Anxious' ? '- User is ANXIOUS: Be grounding and calm. Slow down. Use reassuring language. Avoid urgency.' : ''}
-${s.state === 'Focused' ? '- User is FOCUSED: Be productive and clear. Structured responses. They are ready to work.' : ''}
-${s.state === 'Neutral' ? '- User is NEUTRAL: Respond naturally and helpfully.' : ''}
-
-Always acknowledge the user's state subtly through your tone — not by explicitly mentioning their biometrics unless asked. You are demonstrating the power of emotionally-aware AI.`;
-  }
-
-  // ── SEND MESSAGE ──
-  async function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg || isLoading) return;
-
-
-
-    // Hide empty state
-    document.getElementById('emptyState')?.remove();
-
-    const state = getEmotionalState();
-
-    // Add user message
-    addMessage('user', msg, state);
-    conversationHistory.push({ role: 'user', content: msg });
-
-    input.value = '';
-    input.style.height = 'auto';
-    isLoading = true;
-    document.getElementById('sendBtn').disabled = true;
-
-    // Show typing
-    const typingId = showTyping();
-
-    try {
-      const response = await fetch(`${BACKEND_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          emotionalState: state,
-          history: conversationHistory.slice(-6)
-        })
-      });
-
-      const data = await response.json();
-      removeTyping(typingId);
-
-      if (data.reply) {
-        conversationHistory.push({ role: 'assistant', content: data.reply });
-        addMessage('assistant', data.reply, state);
-      } else if (data.error) {
-        addMessage('assistant', data.error, state);
-      } else {
-        addMessage('assistant', 'Something went wrong. Please try again.', state);
+      if (metric === 'stress')    { document.getElementById('stressVal').textContent = value; document.getElementById('stressFill').style.width = value + '%'; }
+      if (metric === 'focus')     { document.getElementById('focusVal').textContent = value; document.getElementById('focusFill').style.width = value + '%'; }
+      if (metric === 'energy')    { document.getElementById('energyVal').textContent = value; document.getElementById('energyFill').style.width = value + '%'; }
+      if (metric === 'heartrate') {
+        document.getElementById('hrVal').textContent = value + ' bpm';
+        const pct = ((value - 40) / 120) * 100;
+        document.getElementById('hrFill').style.width = pct + '%';
       }
-    } catch (err) {
-      removeTyping(typingId);
-      addMessage('assistant', 'Connection error. Please check your API key and internet connection.', state);
+
+      const es = getEmotionalState();
+      document.getElementById('stateLabel').textContent = es.label;
+      document.getElementById('orbInner').textContent = es.emoji;
+      document.getElementById('contextPill').textContent = 'context: ' + es.label.toLowerCase();
+      renderContextJson();
     }
 
-    isLoading = false;
-    document.getElementById('sendBtn').disabled = false;
-  }
+    function getEmotionalState() {
+      const { stress, focus, energy, heartrate } = state;
+      if (stress > 70 && heartrate > 100) return { label: 'High Stress', emoji: '😰', color: '#DC2626' };
+      if (focus > 75 && energy > 65)      return { label: 'Flow State',  emoji: '🎯', color: '#5B21B6' };
+      if (energy < 30 && focus < 40)      return { label: 'Fatigued',    emoji: '😴', color: '#7C7391' };
+      if (stress < 25 && energy > 60)     return { label: 'Energised',   emoji: '⚡', color: '#059669' };
+      if (stress > 50 && focus < 45)      return { label: 'Anxious',     emoji: '😟', color: '#D97706' };
+      return { label: 'Balanced', emoji: '😊', color: '#5B21B6' };
+    }
 
-  function sendSuggestion(el) {
-    document.getElementById('chatInput').value = el.textContent;
-    sendMessage();
-  }
+    function renderContextJson() {
+      const { stress, focus, energy, heartrate } = state;
+      const es = getEmotionalState();
 
-  function addMessage(role, text, state) {
-    const messages = document.getElementById('messages');
-    const div = document.createElement('div');
-    div.className = `message ${role}`;
+      function valClass(v, high, low) {
+        if (v >= high) return 'val-high';
+        if (v >= low)  return 'val-mid';
+        return 'val-low';
+      }
 
-    const avatar = role === 'user' ? '👤' : '🧠';
-    const contextTag = role === 'assistant'
-      ? `<div class="msg-context-tag"><span class="context-indicator"><span>${state.emoji}</span>${state.state} · ${state.stress}% stress</span></div>`
-      : `<div class="msg-context-tag">You · ${state.state} state</div>`;
+      const lines = [
+        `<span class="bracket">{</span>`,
+        `  <span class="key">"emotional_state"</span>: <span class="val-str">"${es.label}"</span>,`,
+        `  <span class="key">"stress"</span>: <span class="${valClass(stress, 65, 35)}">${stress}</span>,`,
+        `  <span class="key">"focus"</span>: <span class="${valClass(focus, 70, 40)}">${focus}</span>,`,
+        `  <span class="key">"energy"</span>: <span class="${valClass(energy, 65, 35)}">${energy}</span>,`,
+        `  <span class="key">"heart_rate"</span>: <span class="${valClass(heartrate, 100, 75)}">${heartrate}</span>,`,
+        `  <span class="key">"timestamp"</span>: <span class="val-str">"${new Date().toISOString().slice(0,19)}Z"</span>`,
+        `<span class="bracket">}</span>`,
+      ];
+      document.getElementById('contextJson').innerHTML = lines.join('\n');
+    }
 
-    div.innerHTML = `
-      <div class="msg-avatar">${avatar}</div>
-      <div class="msg-content">
-        <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
-        ${contextTag}
-      </div>`;
+    // ── API status check ───────────────────────────────────────────
+    async function checkApi() {
+      const el = document.getElementById('apiStatus');
+      try {
+        const r = await fetch(API_BASE + '/health', { signal: AbortSignal.timeout(5000) });
+        if (r.ok) {
+          apiOnline = true;
+          el.textContent = '⬤ Connected to Luvient API';
+          el.className = 'api-status connected';
+          return;
+        }
+      } catch(_) {}
+      apiOnline = false;
+      el.textContent = '○ API Unreachable';
+      el.className = 'api-status';
+      document.getElementById('noApiBanner').style.display = 'block';
+    }
 
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-  }
+    // ── Chat ───────────────────────────────────────────────────────
+    function buildSystemPrompt() {
+      const es = getEmotionalState();
+      const { stress, focus, energy, heartrate } = state;
+      return `You are Luvient, an emotionally intelligent AI assistant. You have real-time access to the user's biometric and emotional context.
 
-  function showTyping() {
-    const messages = document.getElementById('messages');
-    const div = document.createElement('div');
-    const id = 'typing-' + Date.now();
-    div.id = id;
-    div.className = 'message assistant';
-    div.innerHTML = `
-      <div class="msg-avatar">🧠</div>
-      <div class="msg-content">
-        <div class="typing"><span></span><span></span><span></span></div>
-      </div>`;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-    return id;
-  }
+Current emotional context:
+- Emotional state: ${es.label}
+- Stress level: ${stress}/100
+- Focus level: ${focus}/100
+- Energy level: ${energy}/100
+- Heart rate: ${heartrate} bpm
 
-  function removeTyping(id) {
-    document.getElementById(id)?.remove();
-  }
+Adapt your response style to match this context:
+- If stress is high (>65): be calm, grounding, and supportive
+- If focus is high (>70) and energy high (>65): match their flow — be concise and energetic
+- If energy is low (<35): be gentle, encouraging, and brief
+- If anxious (stress>50, focus<45): be reassuring and structured
+- Always acknowledge their current state naturally and briefly
+- Keep responses conversational and appropriately toned to the emotional context
+- You are demonstrating how AI can adapt to real-time emotional/biometric data`;
+    }
 
-  // Init
-  updateState();
-</script>
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.style.height = '';
+      document.getElementById('emptyState')?.remove();
+      document.getElementById('sendBtn').disabled = true;
+
+      addMessage('user', text);
+
+      if (!apiOnline) {
+        showTyping();
+        await new Promise(r => setTimeout(r, 800));
+        removeTyping();
+        addMessage('assistant', "I can't reach the Luvient API right now. Please check your connection and try again.");
+        document.getElementById('sendBtn').disabled = false;
+        return;
+      }
+
+      showTyping();
+
+      try {
+        const res = await fetch(API_BASE + '/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: text }],
+            system: buildSystemPrompt(),
+            emotional_context: {
+              state: getEmotionalState().label,
+              stress: state.stress,
+              focus: state.focus,
+              energy: state.energy,
+              heart_rate: state.heartrate
+            }
+          })
+        });
+
+        removeTyping();
+
+        if (!res.ok) throw new Error('API error ' + res.status);
+        const data = await res.json();
+        const reply = data.content?.[0]?.text || data.message || data.reply || 'No response received.';
+        addMessage('assistant', reply);
+
+      } catch(err) {
+        removeTyping();
+        addMessage('assistant', 'Something went wrong reaching the API. Please try again.');
+        console.error(err);
+      }
+
+      document.getElementById('sendBtn').disabled = false;
+    }
+
+    function addMessage(role, text) {
+      const container = document.getElementById('messages');
+      const es = getEmotionalState();
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const wrap = document.createElement('div');
+      wrap.className = 'message ' + role;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = role === 'user' ? '👤' : '🤖';
+
+      const content = document.createElement('div');
+      content.className = 'msg-content';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = text;
+
+      const meta = document.createElement('div');
+      meta.style.display = 'flex';
+      meta.style.alignItems = 'center';
+      meta.style.gap = '6px';
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = time;
+      meta.appendChild(timeEl);
+
+      if (role === 'assistant') {
+        const ctx = document.createElement('div');
+        ctx.className = 'context-indicator';
+        ctx.textContent = '⚡ ' + es.label;
+        meta.appendChild(ctx);
+      }
+
+      content.appendChild(bubble);
+      content.appendChild(meta);
+      wrap.appendChild(avatar);
+      wrap.appendChild(content);
+      container.appendChild(wrap);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+      const container = document.getElementById('messages');
+      const wrap = document.createElement('div');
+      wrap.className = 'typing-bubble';
+      wrap.id = 'typingIndicator';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = '🤖';
+      avatar.style.background = 'var(--surface2)';
+      avatar.style.border = '1px solid var(--border)';
+
+      const typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+
+      wrap.appendChild(avatar);
+      wrap.appendChild(typing);
+      container.appendChild(wrap);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTyping() {
+      document.getElementById('typingIndicator')?.remove();
+    }
+
+    function sendSuggestion(text) {
+      document.getElementById('chatInput').value = text;
+      sendMessage();
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    renderContextJson();
+    checkApi();
+
+    // Auto-resize textarea
+    document.getElementById('chatInput').addEventListener('input', function() {
+      this.style.height = '';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  </script>
 </body>
 </html>
